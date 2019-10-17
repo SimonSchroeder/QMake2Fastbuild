@@ -1,0 +1,55 @@
+// Windows 8.1 SDK
+//------------------------------------------------------------------------------
+
+// Root Paths
+//------------------------------------------------------------------------------
+.Windows81_SDKBasePath          = 'C:\Program Files (x86)\Windows Kits\8.1'
+
+// Defines
+//------------------------------------------------------------------------------
+.WindowsSDK_Defines             = ' -D_WINDOWS'
+								+ ' -DWIN32'
+
+// Windows 8.1 SDK
+//------------------------------------------------------------------------------
+.Windows81_SDK_X64 =
+[
+    .WindowsSDK_IncludePaths        = ' -I"$Windows81_SDKBasePath$/include/um"'
+                                    + ' -I"$Windows81_SDKBasePath$/include/shared"'
+                                    + ' -I"$Windows81_SDKBasePath$/include/winrt"'
+
+    .CommonCompilerOptions          = .WindowsSDK_IncludePaths
+                                    + .WindowsSDK_Defines
+                                    + ' -DWIN64'
+
+    .CompilerOptions                = .CommonCompilerOptions
+    .PCHOptions                     = .CommonCompilerOptions
+
+    .LinkerOptions                  = ' /LIBPATH:"$Windows81_SDKBasePath$/lib/winv6.3/um/x64"'
+                                    + ' /MACHINE:X64'
+]
+Compiler( 'ResourceCompiler-Windows81' )
+{
+    .Executable                 = '$Windows81_SDKBasePath$/Bin/x64/RC.exe'
+    .CompilerFamily             = 'custom'
+}
+
+.WIN81_SDK_PATH					= '$Windows81_SDKBasePath$\Bin\x64'
+
+// Resource Compiler
+//------------------------------------------------------------------------------
+;Compiler( 'Compiler-Windows81-rc' )
+;{
+;    .Root       = '$Windows81_SDKBasePath$\bin\x64'
+;    .Executable = '$Root$\rc.exe'
+;    .ExtraFiles = { '$Root$\rcdll.dll' }
+;    .CompilerFamily = 'custom'
+;}
+;.Toolkit-Windows81-rc =
+;[
+;    .Compiler                   = 'Compiler-Windows81-rc'
+;    .CompilerOptions            = '/NOLOGO $Defines$ -fo "%2" "%1"'
+;    .CompilerOutputExtension    = '.rc'
+;]
+
+//------------------------------------------------------------------------------

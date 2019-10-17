@@ -1,0 +1,373 @@
+// MyProject
+//------------------------------------------------------------------------------
+{
+    .ProjectName        = 'MyProject'
+    .ProjectPath        = '.'
+	
+
+	// DEFINES from MyProject.pro (variable .Defines)
+	//--------------------------------------------------------------------------
+#include "fbuild/defines.bff"
+						
+						// from config.pri
+	.Defines			+ ' -DPER_USER_DEFINE'					
+						
+						// from QT modules
+						+ ' -DQT_OPENGL_LIB'					
+						+ ' -DQT_PRINTSUPPORT'
+						+ ' -DQT_WIDGETS'
+						+ ' -DQT_WINEXTRAS'
+						+ ' -DQT_GUI_LIB'
+						+ ' -DQT_CORE_LIB'
+						
+	// INCLUDEPATH from MyProject.pro (variable .Includes)
+	//--------------------------------------------------------------------------
+#include "fbuild/includes.bff"
+						
+	.LibsDebug		= ' /LIBPATH:..\lib64\debug'
+				+ ' libboost_date_time-vc120-mt-gd-x64-1_67.lib'
+	.LibsProfile		= ' /LIBPATH:..\lib64'
+				+ ' libboost_date_time-vc120-mt-x64-1_67.lib'
+	.LibsRelease		= ' /LIBPATH:..\lib64'
+				+ ' libboost_date_time-vc120-mt-x64-1_67.lib'
+	.Libs				= ' /LIBPATH:..\boost_1_60_0\stage\lib64'
+                                        + 'mylib.lib'
+						
+												
+	.CxxFlags           = ' /Zm200'								// more memory for precompiled headers (from MyProject.pro)
+
+	// Input files from MyProject.pro (generateInputFiles4Fbuild.bat)
+	//--------------------------------------------------------------------------
+	// - .Sources
+	// - .Headers
+	// - .Forms
+	// - .Resources
+	// - .Mocables
+#include "fbuild/files.bff"
+
+	// Rewrite .Includes into .IncPath for compiler flags
+	.IncPath = ''
+	ForEach( .Inc in .Includes )
+	{
+		^IncPath 	+ ' -I$Inc$'
+	}
+    
+    // Exclude some files from Unity builds...
+    .DoNotBuildInUnity              = { 
+					'dummy_classes.cpp'
+                                      }
+    .Sources4Unity                  = {}
+    ForEach( .Src in .Sources )
+    {
+        If( .Src not in .DoNotBuildInUnity )
+        {
+            ^Sources4Unity + { .Src }
+        }
+    }
+
+    // Executable
+    ForEach( .Config in .Configs )
+    {
+        Using( .Config )
+        //.OutputBase + '\$Platform$-$Config$'
+		.OutputBase = '$Config$'
+		
+		.CompilerOptions			+ ' $CxxFlags$'
+									+ ' $Defines$'
+									+ ' $IncPath$'
+									+ ' -I$OutputBase$'
+									
+		.PCHOptions					+ ' $CxxFlags$'
+									+ ' $Defines$'
+									+ ' $IncPath$'
+									+ ' -I$OutputBase$'
+		
+		.DebugString				= 'Debug'
+		.ProfileString				= 'Profile'
+		.ReleaseString				= 'Release'
+		If( .Config == .DebugString )
+		{
+			^CompilerOptions		+ ' $CompilerOptionsDebug$'
+			^PCHOptions				+ ' $CompilerOptionsDebug$'
+			^LinkerOptions			+ ' $LinkerOptionsDebug$ $LibsDebug$'
+		}
+		If( .Config == .ProfileString )
+		{
+			^CompilerOptions		+ ' $CompilerOptionsProfile$'
+			^PCHOptions				+ ' $CompilerOptionsProfile$'
+			^LinkerOptions			+ ' $LinkerOptionsProfile$ $LibsProfile$'
+		}
+		If( .Config == .ReleaseString )
+		{
+			^CompilerOptions		+ ' $CompilerOptionsRelease$'
+			^PCHOptions				+ ' $CompilerOptionsRelease$'
+			^LinkerOptions			+ ' $LinkerOptionsRelease$ $LibsRelease$'
+		}
+		
+		.LinkerOptions				+ ' $Libs$'
+		
+		// Ui files
+        //----------------------------------------------------------------------
+        ObjectList( 'Ui-Files-$Platform$-$Config$' )
+        {
+            .CompilerOutputPath     = '$OutputBase$'
+
+            .CompilerInputFiles     = .Forms
+
+            .Compiler                       = 'Qt-uic'
+            .CompilerOptions                = ' "%1" -o "%2"'
+            .CompilerOutputPrefix           = 'ui_'
+            .CompilerOutputExtension        = '.h'
+        }
+		
+		// Mocables
+        //----------------------------------------------------------------------
+        // 1/4 generate moc_predefs.h
+        Exec( 'Qt-Moc-Predefs-$Platform$-$Config$' )
+        {
+            .ExecOutput     = '$OutputBase$\moc_predefs.h'
+
+            .ExecInput     = '$QT_PATH$\..\mkspecs\features\data\dummy.cpp'
+
+            .ExecExecutable         = '$VS_BASEPATH$\VC\bin\x86_amd64\cl.exe'
+            .ExecArguments          = ' -Bx$QT_PATH$\qmake.exe'
+                                    + ' -nologo'
+                                    + ' -Zc:wchar_t'
+                                    + ' -FS'
+                                    + ' -Zc:rvalueCast'
+                                    + ' -Zc:inline'
+                                    + ' -Z7'
+                                    + ' -MDd'
+                                    + ' -W3'
+                                    + ' -w34100'
+                                    + ' -w34189'
+                                    + ' -w44996'
+                                    + ' -E "%1"'
+            .ExecUseStdOutAsOutput  = true
+        }
+        // 2/4 MOC
+        ObjectList( 'Mocables-$Platform$-$Config$' )
+        {
+            .CompilerOutputPath     = '$OutputBase$'
+
+            .CompilerInputFiles     = .Mocables
+
+            .Compiler                       = 'Qt-moc'
+            .CompilerOptions                = ' $Defines$'
+                                            + ' --compiler-flavor=msvc'
+                                            + ' --include $OutputBase$/moc_predefs.h'
+                                            + ' $IncPath$'
+                                            + ' "%1" -o "%2"'
+            .CompilerOutputPrefix           = 'moc_'
+            .CompilerOutputExtension        = '.cpp'
+
+            .PreBuildDependencies           = { 'Qt-Moc-Predefs-$Platform$-$Config$' }
+        }
+        // 3/4 Unity of moc_*.cpp
+        Unity( 'Moc-Unity-$Platform$-$Config$' )
+        {
+            .UnityInputObjectLists          = { 'Mocables-$Platform$-$Config$' }
+            .UnityOutputPath                = '$OutputBase$'
+            .UnityOutputPattern             = 'MocUnity*.cpp'
+            .UnityNumFiles                  = 20
+        }
+        // 4/4 Compile moc_*.cpp (as Unity)
+        ObjectList( 'Moc-Objects-$Platform$-$Config$' )
+        {
+            .CompilerOutputPath             = '$OutputBase$'
+            .CompilerInputUnity             = 'Moc-Unity-$Platform$-$Config$'
+			.CompilerOptions				+ ' -FIpch4moc.h -Yupch4moc.h -Fp$OutputBase$\\MyProject_pch4moc.pch'
+			
+			.PCHInputFile				= 'src/pch4moc.h'
+			.PCHOutputFile				= '$OutputBase$/MyProject_pch4moc.pch'
+        }
+
+        // Resource files
+        //----------------------------------------------------------------------
+        .ResourceTargets = {}
+        ForEach( .rcc_file  in .Resources )
+        {
+            .filename                       = .rcc_file
+                                            - '.qrc'
+                                            - 'src/rc/'
+                                            - 'qdarkstyle/'
+
+            ObjectList( '$filename$-qrc-$Platform$-$Config$' )
+            {
+                .CompilerOutputPath     = '$OutputBase$'
+
+                .CompilerInputFiles     = .rcc_file
+
+                .Compiler                       = 'Qt-rcc'
+                .CompilerOptions                = ' -name $filename$ "%1" -o "%2"'
+                .CompilerOutputPrefix           = 'qrc_'
+                .CompilerOutputExtension        = '.cpp'
+            }
+            Unity( '$filename$-qrc-Unity-$Platform$-$Config$' )
+            {
+                .UnityInputObjectLists          = { '$filename$-qrc-$Platform$-$Config$' }
+                .UnityOutputPath                = '$OutputBase$'
+                .UnityOutputPattern             = 'Unity_$filename$*.cpp'
+                //.UnityNumFiles                  = 2
+            }
+            ObjectList( '$filename$-qrc-Object-$Platform$-$Config$' )
+            {
+                .CompilerOutputPath             = '$OutputBase$'
+                .CompilerInputUnity             = '$filename$-qrc-Unity-$Platform$-$Config$'
+            }
+
+            ^ResourceTargets + { '$filename$-qrc-Object-$Platform$-$Config$' }
+        }
+        Alias( 'Qrc-Objects-$Platform$-$Config$' ) { .Targets = .ResourceTargets }
+
+        // Windows res file (app icon)
+        //----------------------------------------------------------------------
+        ObjectList( 'Windows-Resources-$Platform$-$Config$' )
+        {
+            .CompilerOutputPath         = '$OutputBase$'
+
+            .CompilerInputFiles         = 'fbuild/MyProject_resource.rc'
+
+            .Compiler                   = 'ResourceCompiler'
+            .CompilerOptions            = ' /NOLOGO'
+                                        + ' $Defines$'
+                                        + ' $IncPath$'      // eigentlich nur Windows Include Path
+                                        + ' -fo "%2" "%1"'
+            .CompilerOutputExtension    = '.res'
+        }
+		
+		// ObjectList
+        //----------------------------------------------------------------------
+        ;ObjectList( 'Objects-$Platform$-$Config$' )
+        ;{
+        ;    .CompilerOutputPath     = '$OutputBase$'
+		;
+        ;    .CompilerInputFiles     = .Sources
+		;	.CompilerOptions	    + ' -FIpch.h -Yupch.h -Fp$OutputBase$\\MyProject_pch.pch'
+		;	
+		;	.PCHInputFile				= 'src/pch.h'
+		;	.PCHOutputFile				= '$OutputBase$/MyProject_pch.pch'
+		;
+        ;    .PreBuildDependencies   = 'Ui-Files-$Platform$-$Config$'
+        ;}
+        
+        Unity( 'Unity-$Platform$-$Config$' )
+        {
+            .UnityInputFiles                = .Sources4Unity
+            .UnityOutputPath                = '$OutputBase$'
+            .UnityOutputPattern             = 'Unity*.cpp'
+            .UnityNumFiles                  = 40
+        }
+        ObjectList( 'Objects-$Platform$-$Config$' )
+        {
+            .CompilerOutputPath             = '$OutputBase$'
+            .CompilerInputUnity             = 'Unity-$Platform$-$Config$'
+			.CompilerOptions				+ ' -FIpch.h -Yupch.h -Fp$OutputBase$\\MyProject_pch.pch'
+			
+			.PCHInputFile				= 'src/pch.h'
+			.PCHOutputFile				= '$OutputBase$/MyProject_pch.pch'
+			
+			.PreBuildDependencies   = 'Ui-Files-$Platform$-$Config$'
+        }
+        
+        ObjectList( 'NonUnity-Objects-$Platform$-$Config$' )
+        {
+            .CompilerOutputPath     = '$OutputBase$'
+            
+            .CompilerInputFiles     = .DoNotBuildInUnity
+            .CompilerOptions	    + ' -FIpch.h -Yupch.h -Fp$OutputBase$\\MyProject_pch_extra.pch'
+            
+            .PCHInputFile				= 'src/pch4moc.h'
+            .PCHOutputFile				= '$OutputBase$/MyProject_pch_extra.pch'
+        }
+
+        // Executable
+        //----------------------------------------------------------------------
+        Executable( '$ProjectName$-$Platform$-$Config$' )
+        {
+            .Libraries          =  { 'Objects-$Platform$-$Config$',
+                                     'NonUnity-Objects-$Platform$-$Config$',
+                                     'Moc-Objects-$Platform$-$Config$',
+                                     'Qrc-Objects-$Platform$-$Config$',
+                                     'Windows-Resources-$Platform$-$Config$'
+                                   }
+
+            .LinkerOutput       = '$OutputBase$\$ProjectName$.exe'
+        }
+
+        ^'Targets_$Platform$_$Config$' + { '$ProjectName$-$Platform$-$Config$' }
+    }
+
+    // Aliases
+    //--------------------------------------------------------------------------
+
+    // Per-Config
+    #if __WINDOWS__
+    Alias( 'Debug' )           { .Targets = { '$ProjectName$-X64-Debug' } }
+    Alias( 'Profile' )         { .Targets = { '$ProjectName$-X64-Profile' } }
+    Alias( 'Release' )         { .Targets = { '$ProjectName$-X64-Release' } }
+    #endif
+
+    // Per-Platform
+    Alias( '$ProjectName$-X64' )             { .Targets = { '$ProjectName$-X64-Debug', '$ProjectName$-X64-Release', '$ProjectName$-X64-Profile' } }
+
+    // All
+    Alias( '$ProjectName$' )
+    {
+        .Targets = { '$ProjectName$-Debug', '$ProjectName$-Profile', '$ProjectName$-Release' }
+    }
+	
+	// Assemble include paths into string for IntellisenseOptions
+	.IncludeSearchPath = ''
+	ForEach( .Inc in .Includes )
+	{
+		^IncludeSearchPath + ' $Inc$;'
+	}
+	ForEach( .Inc in .QtIncPaths )
+	{
+		^IncludeSearchPath + ' $Inc$;'
+	}
+	.IncludeSearchPath + ' ^$(Configuration);'
+	
+	.SourceFileType             = [
+                                    .FileType     = 'Source Files'
+                                    .Pattern      = '*.cpp'
+                                  ]
+	.HeaderFileType             = [
+									.FileType     = 'Header Files'
+									.Pattern      = '*.h'
+								  ]
+
+	.ProjectFileTypes           = {
+									.SourceFileType,
+									.HeaderFileType
+								  }
+	
+    // Visual Studio Project Generation
+    //--------------------------------------------------------------------------
+    #if __WINDOWS__
+        VCXProject( '$ProjectName$-proj' )
+        {
+            .ProjectOutput              = '$ProjectName$.vcxproj'
+            .ProjectFiles               = .Sources
+                                        + .Headers
+            .ProjectBasePath            = '$ProjectPath$\'
+
+            
+										  
+			// IntellisenseOptions
+			.PreprocessorDefines	= .Defines
+			;.IncludeSearchPath		= .Includes 
+			;						+ .QtIncPaths
+									
+			// Compilation Input/Output
+			.OutputDirectory		= .OutputBase
+			.IntermediateDirectory	= .OutputBase
+
+            .ProjectX64Debug        = [ Using( .ProjectX64Debug )           .Target = '$ProjectName$-X64-Debug' ]
+            .ProjectX64Profile      = [ Using( .ProjectX64Profile )         .Target = '$ProjectName$-X64-Profile' ]
+            .ProjectX64Release      = [ Using( .ProjectX64Release )         .Target = '$ProjectName$-X64-Release' ]
+            .ProjectConfigs         = { .ProjectX64Debug, .ProjectX64Profile, .ProjectX64Release }
+        }
+    #endif
+}

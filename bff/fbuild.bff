@@ -1,0 +1,176 @@
+// SPRING5
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// Windows Platform
+//------------------------------------------------------------------------------
+#include "fbuild/VisualStudio/VisualStudio.bff"
+#include "fbuild/Windows/Windows.bff"
+#include "fbuild/Qt/Qt.bff"
+
+//------------------------------------------------------------------------------
+// Settings
+//------------------------------------------------------------------------------
+Settings
+{
+    #if __WINDOWS__
+        #import TMP
+        .Environment    = { "PATH=$VS_PATH$;$WINSDK_PATH$",
+                            "TMP=$TMP$",
+                            "SystemRoot=C:\Windows",
+                            "INCLUDE=C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\INCLUDE;C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\ATLMFC\INCLUDE;C:\Program Files (x86)\Windows Kits\8.1\include\shared;C:\Program Files (x86)\Windows Kits\8.1\include\um;C:\Program Files (x86)\Windows Kits\8.1\include\winrt;",
+                            "LIB=C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\LIB\amd64;C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\ATLMFC\LIB\amd64;C:\Program Files (x86)\Windows Kits\8.1\lib\winv6.3\um\x64;",
+                            "LIBPATH=C:\WINDOWS\Microsoft.NET\Framework64\v4.0.30319;C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\LIB\amd64;C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\ATLMFC\LIB\amd64;C:\Program Files (x86)\Windows Kits\8.1\References\CommonConfiguration\Neutral;C:\Program Files (x86)\Microsoft SDKs\Windows\v8.1\ExtensionSDKs\Microsoft.VCLibs\12.0\References\CommonConfiguration\neutral;"
+                          }
+		.CachePath		= "fbuild\.fbuild.cache"
+    #else
+        .CachePath      = "/tmp/.fbuild.cache"
+    #endif
+    .AllowDBMigration_Experimental = true
+}
+
+//------------------------------------------------------------------------------
+// Config Defines
+//------------------------------------------------------------------------------
+.Debug_Config =
+[
+	.CompilerOptions				= ' -MDd'
+									+ ' -Z7'
+	.PCHOptions						= .CompilerOptions
+	.LinkerOptions					= ' /DEBUG'
+									+ ' msvcrtd.lib'
+									+ ' msvcprtd.lib'
+									+ ' vcompd.lib'     // OpenMP
+
+    .Config                         = 'Debug'
+]
+.Profile_Config =
+[
+	.CompilerOptions				= ' -MD'
+									+ ' -Z7'
+									+ ' -O2'
+									+ ' -Zc:strictStrings'
+									+ ' -DNDEBUG'
+	.PCHOptions						= .CompilerOptions
+	.LinkerOptions					= ' /DEBUG /OPT:REF /INCREMENTAL:NO'
+									+ ' msvcrt.lib'
+									+ ' msvcprt.lib'
+									+ ' vcomp.lib'     // OpenMP
+
+    .Config                         = 'Profile'
+]
+.Release_Config =
+[
+	.CompilerOptions				= ' -MD'
+									+ ' -O2'
+									+ ' -Zc:strictStrings'
+									+ ' -DNDEBUG'
+	.PCHOptions						= .CompilerOptions
+	.LinkerOptions					= ' /INCREMENTAL:NO'
+							+ ' /NODEFAULTLIB:LIBCMT'
+									+ ' msvcrt.lib'
+									+ ' msvcprt.lib'
+									+ ' vcomp.lib'     // OpenMP
+
+    .Config                         = 'Release'
+]
+
+// X64
+//------------------------------------------------------------------------------
+#if __WINDOWS__
+    .X64BaseConfig              = .ToolChain_VS_Windows_X64
+                                + .WindowsSDK_X64
+								+ .ToolChain_Qt
+    .X64DebugConfig             = .X64BaseConfig
+                                + .Debug_Config
+    .X64ReleaseConfig           = .X64BaseConfig
+                                + .Release_Config
+    .X64ProfileConfig           = .X64BaseConfig
+                                + .Profile_Config
+#endif
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+.OutputBase = 'fbuild'
+
+//------------------------------------------------------------------------------
+// VisualStudio Project Generation
+//------------------------------------------------------------------------------
+.ProjectCommon =
+[
+    .ProjectBuildCommand        = 'cd ^$(SolutionDir) &amp; fbuild -vs -dist -monitor -fastcancel -cache ^$(Configuration)'
+    .ProjectRebuildCommand      = 'cd ^$(SolutionDir) &amp; fbuild -vs -dist -monitor -fastcancel -cache -clean ^$(Configuration)'
+    .OutputDirectory            = '^$(SolutionDir)\^$(Configuration)'
+    .IntermediateDirectory      = '^$(SolutionDir)\^$(Configuration)'
+    .BuildLogFile               = '^$(SolutionDir)\^$(Configuration)\^$(ProjectName)-^$(Configuration).log'
+    .Platform                   = 'x64'
+    .PlatformToolset            = '$VS_PlatformToolset$'
+]
+
+.ProjectX64Debug        = [ Using( .ProjectCommon ) .Config = 'Debug' ]
+.ProjectX64Profile      = [ Using( .ProjectCommon ) .Config = 'Profile' ]
+.ProjectX64Release      = [ Using( .ProjectCommon ) .Config = 'Release' ]
+
+.ProjectConfigs = { .ProjectX64Debug, .ProjectX64Profile, .ProjectX64Release }
+
+// Configurations
+//------------------------------------------------------------------------------
+#if __WINDOWS__
+    .Configs_Windows_MSVC   = { .X64DebugConfig, .X64ProfileConfig, .X64ReleaseConfig }
+    .Configs                = .Configs_Windows_MSVC
+#endif
+
+.Targets_x64_Debug = {}
+.Targets_x64_Profile = {}
+.Targets_x64_Release = {}
+
+#include "MyProject.bff"
+
+// Aliases : All-$Platform$-$Config$
+//------------------------------------------------------------------------------
+ForEach( .Config in .Configs )
+{
+    Using( .Config )
+
+    Alias( 'All-$Platform$-$Config$' ) { .Targets = .'Targets_$Platform$_$Config$' }
+}
+
+// Aliases : All-$Platform$
+//------------------------------------------------------------------------------
+.Platforms = { 'x64' }
+.PlatformConfigs_x64           = { 'Debug', 'Profile', 'Release' }
+ForEach( .Platform in .Platforms )
+{
+    Alias( 'All-$Platform$' )
+    {
+        .Targets = {}
+        ForEach( .Config in .'PlatformConfigs_$Platform$' )
+        {
+            ^Targets + { 'All-$Platform$-$Config$' }
+        }
+    }
+}
+
+// Aliases : All
+//------------------------------------------------------------------------------
+#if __WINDOWS__
+    Alias( 'All' )
+    {
+        .Targets        = { 'All-x64' }
+    }
+#endif
+
+// Visual Studio Solution
+//------------------------------------------------------------------------------
+#if __WINDOWS__
+    VSSolution( 'solution' )
+    {
+        .SolutionOutput         = 'MyProject.sln'
+        .SolutionProjects       = { 'MyProject-proj' }
+        .SolutionBuildProject   = 'MyProject-proj'
+        .SolutionConfigs        = .ProjectConfigs
+    }
+#endif
+
+//------------------------------------------------------------------------------

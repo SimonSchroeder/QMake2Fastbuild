@@ -1,0 +1,19 @@
+// VisualStudio
+//------------------------------------------------------------------------------
+
+// Select desired Visual Studio version
+//------------------------------------------------------------------------------
+#define USING_VS2013
+
+// Activate
+//------------------------------------------------------------------------------
+#if USING_VS2013
+    #include "VS2013.bff"
+    .MSC_VER                            = .VS2013_MSC_VER
+    .ToolChain_VS_Windows_X64           = .ToolChain_VS2013_Windows_X64
+    .VS_PATH                            = .VS_2013_PATH
+    .VS_BASEPATH                        = .VS2013_BasePath
+    .VS_PlatformToolset                 = .VS_2013_PlatformToolset
+#endif
+
+//------------------------------------------------------------------------------
