@@ -97,3 +97,36 @@ Our *.pro file always contains a line
 exists(config.pri): include(config.pri)
 ```
 to allow local configurations. The `config.pri` is thus not part of the repository. You will encounter the name `config.pri` in `MyProject.bff`, however the scripts will not automatically extract information from that file.
+
+## What you'll get
+From this repository you will basically get a bunch of *.bff files (i.e. configuration files for FASTBuild) and a set of script (*.bat batch files for Windows) to generate individual input *.bff files (e.g. with your *.cpp and *.h files in it). In this repository these are put into separate folders `bff` and `scripts`. This is only to have a clean repository here. You need to check out this repository and copy the files over to your project. In the end, you should have the following folder structure:
+```bash
+{MyProjectDir}/
+|-- MyProject.pro                   # your original Qt project file
+|-- config.pri                      # (optional)
+|-- FBuild.exe                      # (if you copied FASTBuild here)
+|-- FBuildWorker.exe                # (if you copied FASTBuild here)
+|-- fbuild.bff                      # main configuration file for FASTBuild
+|-- MyProject.bff                   # lots of project specific stuff (rename to your project)
+|-- src/*                           # all your sources, etc.
+|-- fbuild                          # contains some standard FBuild includes (and the cache)
+|   |-- Qt
+|   |   |-- Qt.bff                  # choose Qt Version in here
+|   |   `-- Qt591.bff               # configuration specific to Qt 5.9.1
+|   |-- VisualStudio
+|   |   |-- VisualStudio.bff        # choose Visual Studio compiler version here
+|   |   `-- VS2013.bff              # configuration specific to VS 2013
+|   `-- Windows
+|       |-- Windows.bff             # choose proper Windows SDK in here
+|       |-- Windows81SKD.bff        # configuration specific to Win8.1 SDK
+|       `-- Windows10SDK.bff        # tentative configuration for Win10 SDK
+|-- generateDefines4Fbuild.bat      # generate preprocessor defines from MyProject.pro
+|-- generateIncludes4Fbuild.bat     # generate include paths from MyProject.pro
+`-- generateInputFiles4Fbuild.bat   # generate list of all input files from MyProject.pro
+
+You should rename `MyProject.bff` according to your own project name. "MyProject" will appear in the following files and needs to be replaced as well:
+* `fbuild.bff`
+* `MyProject.bff`
+* `generateDefines4FBuild.bat`
+* `generateIncludes4FBuild.bat`
+* `generateInputFiles4Fbuild.bat`
