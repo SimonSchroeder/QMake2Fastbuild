@@ -74,3 +74,26 @@ After installing Scoop this is now quite easy.
    scoop install sed
    ```
 1. You're done.
+
+## What you need
+We'll shortly explain what you need in order to be able to use the set of tools in this repository. Throughout this explanation and also in the provided files we assume that the project is call `MyProject`. This is something you should replace everywhere.
+
+Initially, we assume the following folder structure:
+```bash
+{MyProjectDir}/
+|-- MyProject.pro   # qmake project file
+|-- config.pri      # (optional)
+`-- src/            # directory containing everything
+    |-- *.cpp       # possibly in subfolders
+    |-- *.h         # possibly in subfolders
+    |-- *.ui        #         ...
+    |-- *.qrc       #         ...
+    `-- *           # other files
+```
+If you don't have a Qt project file yet, you can run `qmake -project` in `{MyProjectDir}/` to generate one with all source files.
+
+Our *.pro file always contains a line
+```qmake
+exists(config.pri): include(config.pri)
+```
+to allow local configurations. The `config.pri` is thus not part of the repository. You will encounter the name `config.pri` in `MyProject.bff`, however the scripts will not automatically extract information from that file.
