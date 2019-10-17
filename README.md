@@ -123,6 +123,7 @@ From this repository you will basically get a bunch of *.bff files (i.e. configu
 |-- generateDefines4Fbuild.bat      # generate preprocessor defines from MyProject.pro
 |-- generateIncludes4Fbuild.bat     # generate include paths from MyProject.pro
 `-- generateInputFiles4Fbuild.bat   # generate list of all input files from MyProject.pro
+```
 
 You should rename `MyProject.bff` according to your own project name. "MyProject" will appear in the following files and needs to be replaced as well:
 * `fbuild.bff`
