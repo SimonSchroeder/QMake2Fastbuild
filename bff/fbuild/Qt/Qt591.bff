@@ -35,59 +35,59 @@ Compiler( 'Compiler-Qt5.9.1-rcc' )
     .CompilerFamily = 'qt-rcc'
 }
 
-.Qt5_9_1IncPaths          			= { 
-										'$Qt5_9_1_BasePath$\include',
-										'$Qt5_9_1_BasePath$\include\QtOpenGL',
-										'$Qt5_9_1_BasePath$\include\QtPrintSupport',
-										'$Qt5_9_1_BasePath$\include\QtWidgets',
-										'$Qt5_9_1_BasePath$\include\QtWinExtras',
-										'$Qt5_9_1_BasePath$\include\QtGui',
-										'$Qt5_9_1_BasePath$\include\QtANGLE',
-										'$Qt5_9_1_BasePath$\include\QtCore',
-										'$Qt5_9_1_BasePath$\mkspecs\win32-msvc'
-									  }
-									  
+.Qt5_9_1IncPaths                    = { 
+                                        '$Qt5_9_1_BasePath$\include',
+                                        '$Qt5_9_1_BasePath$\include\QtOpenGL',
+                                        '$Qt5_9_1_BasePath$\include\QtPrintSupport',
+                                        '$Qt5_9_1_BasePath$\include\QtWidgets',
+                                        '$Qt5_9_1_BasePath$\include\QtWinExtras',
+                                        '$Qt5_9_1_BasePath$\include\QtGui',
+                                        '$Qt5_9_1_BasePath$\include\QtANGLE',
+                                        '$Qt5_9_1_BasePath$\include\QtCore',
+                                        '$Qt5_9_1_BasePath$\mkspecs\win32-msvc'
+                                      }
+                                      
 .Qt5_9_1IncPaths_Flags = ''
 ForEach( .Inc in .Qt5_9_1IncPaths )
 {
-	^Qt5_9_1IncPaths_Flags	+ ' -I$Inc$'
+    ^Qt5_9_1IncPaths_Flags  + ' -I$Inc$'
 }
 
 // Toolchain
 //------------------------------------------------------------------------------
 .ToolChain_Qt5_9_1 =
 [
-	.CompilerOptions				= .Qt5_9_1IncPaths_Flags
+    .CompilerOptions                = .Qt5_9_1IncPaths_Flags
     .CompilerOptionsDebug           = ' -DQT_QML_DEBUG'
-	.CompilerOptionsProfile			= ' -DQT_QML_DEBUG'
-									+ ' -DQT_NODEBUG'
-	.CompilerOptionsRelease			= ' -DQT_NO_DEBUG'
-	.PCHOptions						= .Qt5_9_1IncPaths_Flags
+    .CompilerOptionsProfile         = ' -DQT_QML_DEBUG'
+                                    + ' -DQT_NODEBUG'
+    .CompilerOptionsRelease         = ' -DQT_NO_DEBUG'
+    .PCHOptions                     = .Qt5_9_1IncPaths_Flags
     .LinkerOptions                  = ' /LIBPATH:$Qt5_9_1_BasePath$\lib'
-									+ ' /LIBPATH:C:\utils\my_sql\my_sql\lib'
-									+ ' /LIBPATH:C:\utils\postgresql\pgsql\lib'
-									+ ' shell32.lib'
-	.LinkerOptionsDebug				= ' $Qt5_9_1_BasePath$\lib\qtmaind.lib'
-									+ ' $Qt5_9_1_BasePath$\lib\Qt5OpenGLd.lib'
-									+ ' $Qt5_9_1_BasePath$\lib\Qt5PrintSupportd.lib'
-									+ ' $Qt5_9_1_BasePath$\lib\Qt5Widgetsd.lib'
-									+ ' $Qt5_9_1_BasePath$\lib\Qt5WinExtrasd.lib'
-									+ ' $Qt5_9_1_BasePath$\lib\Qt5Guid.lib'
-									+ ' $Qt5_9_1_BasePath$\lib\Qt5Cored.lib'
-	.LinkerOptionsProfile			= ' $Qt5_9_1_BasePath$\lib\qtmain.lib'
-									+ ' $Qt5_9_1_BasePath$\lib\Qt5OpenGL.lib'
-									+ ' $Qt5_9_1_BasePath$\lib\Qt5PrintSupport.lib'
-									+ ' $Qt5_9_1_BasePath$\lib\Qt5Widgets.lib'
-									+ ' $Qt5_9_1_BasePath$\lib\Qt5WinExtras.lib'
-									+ ' $Qt5_9_1_BasePath$\lib\Qt5Gui.lib'
-									+ ' $Qt5_9_1_BasePath$\lib\Qt5Core.lib'
-	.LinkerOptionsRelease			= ' $Qt5_9_1_BasePath$\lib\qtmain.lib'
-									+ ' $Qt5_9_1_BasePath$\lib\Qt5OpenGL.lib'
-									+ ' $Qt5_9_1_BasePath$\lib\Qt5PrintSupport.lib'
-									+ ' $Qt5_9_1_BasePath$\lib\Qt5Widgets.lib'
-									+ ' $Qt5_9_1_BasePath$\lib\Qt5WinExtras.lib'
-									+ ' $Qt5_9_1_BasePath$\lib\Qt5Gui.lib'
-									+ ' $Qt5_9_1_BasePath$\lib\Qt5Core.lib'
+                                    + ' /LIBPATH:C:\utils\my_sql\my_sql\lib'
+                                    + ' /LIBPATH:C:\utils\postgresql\pgsql\lib'
+                                    + ' shell32.lib'
+    .LinkerOptionsDebug             = ' $Qt5_9_1_BasePath$\lib\qtmaind.lib'
+                                    + ' $Qt5_9_1_BasePath$\lib\Qt5OpenGLd.lib'
+                                    + ' $Qt5_9_1_BasePath$\lib\Qt5PrintSupportd.lib'
+                                    + ' $Qt5_9_1_BasePath$\lib\Qt5Widgetsd.lib'
+                                    + ' $Qt5_9_1_BasePath$\lib\Qt5WinExtrasd.lib'
+                                    + ' $Qt5_9_1_BasePath$\lib\Qt5Guid.lib'
+                                    + ' $Qt5_9_1_BasePath$\lib\Qt5Cored.lib'
+    .LinkerOptionsProfile           = ' $Qt5_9_1_BasePath$\lib\qtmain.lib'
+                                    + ' $Qt5_9_1_BasePath$\lib\Qt5OpenGL.lib'
+                                    + ' $Qt5_9_1_BasePath$\lib\Qt5PrintSupport.lib'
+                                    + ' $Qt5_9_1_BasePath$\lib\Qt5Widgets.lib'
+                                    + ' $Qt5_9_1_BasePath$\lib\Qt5WinExtras.lib'
+                                    + ' $Qt5_9_1_BasePath$\lib\Qt5Gui.lib'
+                                    + ' $Qt5_9_1_BasePath$\lib\Qt5Core.lib'
+    LinkerOptionsRelease            = ' $Qt5_9_1_BasePath$\lib\qtmain.lib'
+                                    + ' $Qt5_9_1_BasePath$\lib\Qt5OpenGL.lib'
+                                    + ' $Qt5_9_1_BasePath$\lib\Qt5PrintSupport.lib'
+                                    + ' $Qt5_9_1_BasePath$\lib\Qt5Widgets.lib'
+                                    + ' $Qt5_9_1_BasePath$\lib\Qt5WinExtras.lib'
+                                    + ' $Qt5_9_1_BasePath$\lib\Qt5Gui.lib'
+                                    + ' $Qt5_9_1_BasePath$\lib\Qt5Core.lib'
 ]
 
 // PATH environment variable

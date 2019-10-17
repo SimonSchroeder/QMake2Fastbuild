@@ -37,52 +37,27 @@ Compiler( 'Compiler-VS2013-x64' )
 
     // Compiler
     .Compiler                       = 'Compiler-VS2013-X64'
-    ;.CommonCompilerOptions          = ' /Z7 /nologo /c /W4 /WX'
-    ;                                + ' /Zc:inline'         // Remove unreferenced COMDATs at compile time (VS2013.2+)
-    ;                                + ' /Zc:strictStrings'  // Require const only usage of string literals (VS2013+)
-    ;                                + ' /fp:fast'
-    ;
-    ;                                // Include Paths
-    ;                                + ' /I"./"'
-    ;                                + .VSIncludePaths
-    ;
-    ;                                // Enable additional warnings
-    ;                                + ' /we4062' // enumerator 'identifier' in a switch of enum 'enumeration' is not handled
-    ;                                + ' /we4263' // 'function' : member function does not override any base class virtual member function
-    ;                                + ' /we4265' // 'class': class has virtual functions, but destructor is not virtual
-    ;                                + ' /we4296' // 'operator': expression is always false
-    ;                                + ' /we4555' // expression has no effect; expected expression with side-effect
-    ;                                + ' /we4619' // #pragma warning : there is no warning number 'number'
-    ;                                + ' /we4640' // 'instance' : construction of local static object is not thread-safe
-    ;                                + ' /we4826' // Conversion from 'type1 ' to 'type_2' is sign-extended. This may cause unexpected runtime behavior.
-    ;                                + ' /we4836' // nonstandard extension used : 'type' : local types or unnamed types cannot be used as template arguments
-    ;                                + ' /we4905' // wide string literal cast to 'LPSTR'
-    ;                                + ' /we4906' // string literal cast to 'LPWSTR'
-    ;.CommonCompilerOptions          =  ' /c'
-    ;                                // Include Paths
-    ;                                + ' /I"./"'
-    ;                                + .VSIncludePaths
-	.CommonCompilerOptions   		= ' -nologo'
-									+ ' -Zc:wchar_t'
-									+ ' -FS'
-									+ ' -Zc:rvalueCast'
-									+ ' -Zc:inline'
-									
-									// Enable Warnings
-									+ ' -W3'
-									+ ' -w34100'
-									+ ' -w34189'
-									+ ' -w44996'
-									
-									// Exceptions
-									+ ' -EHsc'
-									
-									// Defines
-									+ ' -DUNICODE'
-									+ ' -D_UNICODE'
-									
-									// Include Paths
-									+ ' /I"./"'
+    .CommonCompilerOptions          = ' -nologo'
+                                    + ' -Zc:wchar_t'
+                                    + ' -FS'
+                                    + ' -Zc:rvalueCast'
+                                    + ' -Zc:inline'
+                                    
+                                    // Enable Warnings
+                                    + ' -W3'
+                                    + ' -w34100'
+                                    + ' -w34189'
+                                    + ' -w44996'
+                                    
+                                    // Exceptions
+                                    + ' -EHsc'
+                                    
+                                    // Defines
+                                    + ' -DUNICODE'
+                                    + ' -D_UNICODE'
+                                    
+                                    // Include Paths
+                                    + ' /I"./"'
                                     + .VSIncludePaths
 
     .CompilerOptions                = ' -c $CommonCompilerOptions$ "%1" /Fo"%2"'
@@ -94,21 +69,18 @@ Compiler( 'Compiler-VS2013-x64' )
 
     // Linker
     .Linker                         = '$VS2013_BasePath$/VC/bin/amd64/link.exe'
-    ;.LinkerOptions                  = '/NODEFAULTLIB /NOLOGO /INCREMENTAL:NO /OUT:"%2" "%1" /DEBUG'
-    ;                                + .VSLibPaths
-	
-	.LinkerOptions					= '/NOLOGO /DYNAMICBASE /NXCOMPAT'
-									+ ' /SUBSYSTEM:WINDOWS "/MANIFESTDEPENDENCY:type=^'win32^''
-									+ ' name=^'Microsoft.Windows.Common-Controls^''
-									+ ' version=^'6.0.0.0^''
-									+ ' publicKeyToken=^'6595b64144ccf1df^''
-									+ ' language=^'*^''
-									+ ' processorArchitecture=^'*^'"'
-									+ ' /MANIFEST:embed'
-									+ ' /OUT:"%2" "%1"'
-									
-									// Default libraries
-									+ .VSLibPaths
+    .LinkerOptions                  = '/NOLOGO /DYNAMICBASE /NXCOMPAT'
+                                    + ' /SUBSYSTEM:WINDOWS "/MANIFESTDEPENDENCY:type=^'win32^''
+                                    + ' name=^'Microsoft.Windows.Common-Controls^''
+                                    + ' version=^'6.0.0.0^''
+                                    + ' publicKeyToken=^'6595b64144ccf1df^''
+                                    + ' language=^'*^''
+                                    + ' processorArchitecture=^'*^'"'
+                                    + ' /MANIFEST:embed'
+                                    + ' /OUT:"%2" "%1"'
+                                    
+                                    // Default libraries
+                                    + .VSLibPaths
                                     + ' kernel32.lib'
                                     + ' user32.lib'
                                     + ' gdi32.lib'
@@ -122,8 +94,8 @@ Compiler( 'Compiler-VS2013-x64' )
                                     + ' odbc32.lib'
                                     + ' odbccp32.lib'
 
-	// Faster Caching
-        .UseLightCache_Experimental     = true
+    // Faster Caching
+    .UseLightCache_Experimental     = true
 ]
 
 // PATH environment variable

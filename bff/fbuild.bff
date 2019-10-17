@@ -1,4 +1,4 @@
-// SPRING5
+// MyProject
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
@@ -22,7 +22,7 @@ Settings
                             "LIB=C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\LIB\amd64;C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\ATLMFC\LIB\amd64;C:\Program Files (x86)\Windows Kits\8.1\lib\winv6.3\um\x64;",
                             "LIBPATH=C:\WINDOWS\Microsoft.NET\Framework64\v4.0.30319;C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\LIB\amd64;C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\ATLMFC\LIB\amd64;C:\Program Files (x86)\Windows Kits\8.1\References\CommonConfiguration\Neutral;C:\Program Files (x86)\Microsoft SDKs\Windows\v8.1\ExtensionSDKs\Microsoft.VCLibs\12.0\References\CommonConfiguration\neutral;"
                           }
-		.CachePath		= "fbuild\.fbuild.cache"
+        .CachePath      = "fbuild\.fbuild.cache"
     #else
         .CachePath      = "/tmp/.fbuild.cache"
     #endif
@@ -34,43 +34,43 @@ Settings
 //------------------------------------------------------------------------------
 .Debug_Config =
 [
-	.CompilerOptions				= ' -MDd'
-									+ ' -Z7'
-	.PCHOptions						= .CompilerOptions
-	.LinkerOptions					= ' /DEBUG'
-									+ ' msvcrtd.lib'
-									+ ' msvcprtd.lib'
-									+ ' vcompd.lib'     // OpenMP
+    .CompilerOptions                = ' -MDd'
+                                    + ' -Z7'
+    .PCHOptions                     = .CompilerOptions
+    .LinkerOptions                  = ' /DEBUG'
+                                    + ' msvcrtd.lib'
+                                    + ' msvcprtd.lib'
+                                    + ' vcompd.lib'     // OpenMP
 
     .Config                         = 'Debug'
 ]
 .Profile_Config =
 [
-	.CompilerOptions				= ' -MD'
-									+ ' -Z7'
-									+ ' -O2'
-									+ ' -Zc:strictStrings'
-									+ ' -DNDEBUG'
-	.PCHOptions						= .CompilerOptions
-	.LinkerOptions					= ' /DEBUG /OPT:REF /INCREMENTAL:NO'
-									+ ' msvcrt.lib'
-									+ ' msvcprt.lib'
-									+ ' vcomp.lib'     // OpenMP
+    .CompilerOptions                = ' -MD'
+                                    + ' -Z7'
+                                    + ' -O2'
+                                    + ' -Zc:strictStrings'
+                                    + ' -DNDEBUG'
+    .PCHOptions                     = .CompilerOptions
+    .LinkerOptions                  = ' /DEBUG /OPT:REF /INCREMENTAL:NO'
+                                    + ' msvcrt.lib'
+                                    + ' msvcprt.lib'
+                                    + ' vcomp.lib'     // OpenMP
 
     .Config                         = 'Profile'
 ]
 .Release_Config =
 [
-	.CompilerOptions				= ' -MD'
-									+ ' -O2'
-									+ ' -Zc:strictStrings'
-									+ ' -DNDEBUG'
-	.PCHOptions						= .CompilerOptions
-	.LinkerOptions					= ' /INCREMENTAL:NO'
-							+ ' /NODEFAULTLIB:LIBCMT'
-									+ ' msvcrt.lib'
-									+ ' msvcprt.lib'
-									+ ' vcomp.lib'     // OpenMP
+    .CompilerOptions                = ' -MD'
+                                    + ' -O2'
+                                    + ' -Zc:strictStrings'
+                                    + ' -DNDEBUG'
+    .PCHOptions                     = .CompilerOptions
+    .LinkerOptions                  = ' /INCREMENTAL:NO'
+                                    + ' /NODEFAULTLIB:LIBCMT'
+                                    + ' msvcrt.lib'
+                                    + ' msvcprt.lib'
+                                    + ' vcomp.lib'     // OpenMP
 
     .Config                         = 'Release'
 ]
@@ -80,7 +80,7 @@ Settings
 #if __WINDOWS__
     .X64BaseConfig              = .ToolChain_VS_Windows_X64
                                 + .WindowsSDK_X64
-								+ .ToolChain_Qt
+                                + .ToolChain_Qt
     .X64DebugConfig             = .X64BaseConfig
                                 + .Debug_Config
     .X64ReleaseConfig           = .X64BaseConfig

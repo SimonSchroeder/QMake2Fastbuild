@@ -8,7 +8,7 @@
 // Defines
 //------------------------------------------------------------------------------
 .WindowsSDK_Defines             = ' -D_WINDOWS'
-								+ ' -DWIN32'
+                                + ' -DWIN32'
 
 // Windows 8.1 SDK
 //------------------------------------------------------------------------------
@@ -30,26 +30,10 @@
 ]
 Compiler( 'ResourceCompiler-Windows81' )
 {
-    .Executable                 = '$Windows81_SDKBasePath$/Bin/x64/RC.exe'
-    .CompilerFamily             = 'custom'
+    .Executable                     = '$Windows81_SDKBasePath$/Bin/x64/RC.exe'
+    .CompilerFamily                 = 'custom'
 }
 
-.WIN81_SDK_PATH					= '$Windows81_SDKBasePath$\Bin\x64'
-
-// Resource Compiler
-//------------------------------------------------------------------------------
-;Compiler( 'Compiler-Windows81-rc' )
-;{
-;    .Root       = '$Windows81_SDKBasePath$\bin\x64'
-;    .Executable = '$Root$\rc.exe'
-;    .ExtraFiles = { '$Root$\rcdll.dll' }
-;    .CompilerFamily = 'custom'
-;}
-;.Toolkit-Windows81-rc =
-;[
-;    .Compiler                   = 'Compiler-Windows81-rc'
-;    .CompilerOptions            = '/NOLOGO $Defines$ -fo "%2" "%1"'
-;    .CompilerOutputExtension    = '.rc'
-;]
+.WIN81_SDK_PATH                     = '$Windows81_SDKBasePath$\Bin\x64'
 
 //------------------------------------------------------------------------------

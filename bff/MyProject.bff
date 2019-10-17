@@ -3,60 +3,60 @@
 {
     .ProjectName        = 'MyProject'
     .ProjectPath        = '.'
-	
 
-	// DEFINES from MyProject.pro (variable .Defines)
-	//--------------------------------------------------------------------------
+
+    // DEFINES from MyProject.pro (variable .Defines)
+    //--------------------------------------------------------------------------
 #include "fbuild/defines.bff"
-						
-						// from config.pri
-	.Defines			+ ' -DPER_USER_DEFINE'					
-						
-						// from QT modules
-						+ ' -DQT_OPENGL_LIB'					
-						+ ' -DQT_PRINTSUPPORT'
-						+ ' -DQT_WIDGETS'
-						+ ' -DQT_WINEXTRAS'
-						+ ' -DQT_GUI_LIB'
-						+ ' -DQT_CORE_LIB'
-						
-	// INCLUDEPATH from MyProject.pro (variable .Includes)
-	//--------------------------------------------------------------------------
+                        
+                        // from config.pri
+    .Defines            + ' -DPER_USER_DEFINE'
+                        
+                        // from QT modules
+                        + ' -DQT_OPENGL_LIB'
+                        + ' -DQT_PRINTSUPPORT'
+                        + ' -DQT_WIDGETS'
+                        + ' -DQT_WINEXTRAS'
+                        + ' -DQT_GUI_LIB'
+                        + ' -DQT_CORE_LIB'
+                        
+    // INCLUDEPATH from MyProject.pro (variable .Includes)
+    //--------------------------------------------------------------------------
 #include "fbuild/includes.bff"
-						
-	.LibsDebug		= ' /LIBPATH:..\lib64\debug'
-				+ ' libboost_date_time-vc120-mt-gd-x64-1_67.lib'
-	.LibsProfile		= ' /LIBPATH:..\lib64'
-				+ ' libboost_date_time-vc120-mt-x64-1_67.lib'
-	.LibsRelease		= ' /LIBPATH:..\lib64'
-				+ ' libboost_date_time-vc120-mt-x64-1_67.lib'
-	.Libs				= ' /LIBPATH:..\boost_1_60_0\stage\lib64'
-                                        + 'mylib.lib'
-						
-												
-	.CxxFlags           = ' /Zm200'								// more memory for precompiled headers (from MyProject.pro)
+                    
+    .LibsDebug          = ' /LIBPATH:..\lib64\debug'
+                        + ' libboost_date_time-vc120-mt-gd-x64-1_67.lib'
+    .LibsProfile        = ' /LIBPATH:..\lib64'
+                        + ' libboost_date_time-vc120-mt-x64-1_67.lib'
+    .LibsRelease        = ' /LIBPATH:..\lib64'
+                        + ' libboost_date_time-vc120-mt-x64-1_67.lib'
+    .Libs               = ' /LIBPATH:..\boost_1_60_0\stage\lib64'
+                        + 'mylib.lib'
+                        
+                        
+    .CxxFlags           = ' /Zm200'                             // more memory for precompiled headers (from MyProject.pro)
 
-	// Input files from MyProject.pro (generateInputFiles4Fbuild.bat)
-	//--------------------------------------------------------------------------
-	// - .Sources
-	// - .Headers
-	// - .Forms
-	// - .Resources
-	// - .Mocables
+    // Input files from MyProject.pro (generateInputFiles4Fbuild.bat)
+    //--------------------------------------------------------------------------
+    // - .Sources
+    // - .Headers
+    // - .Forms
+    // - .Resources
+    // - .Mocables
 #include "fbuild/files.bff"
 
-	// Rewrite .Includes into .IncPath for compiler flags
-	.IncPath = ''
-	ForEach( .Inc in .Includes )
-	{
-		^IncPath 	+ ' -I$Inc$'
-	}
+    // Rewrite .Includes into .IncPath for compiler flags
+    .IncPath = ''
+    ForEach( .Inc in .Includes )
+    {
+        ^IncPath    + ' -I$Inc$'
+    }
     
     // Exclude some files from Unity builds...
-    .DoNotBuildInUnity              = { 
-					'dummy_classes.cpp'
-                                      }
-    .Sources4Unity                  = {}
+    .DoNotBuildInUnity      = { 
+                                'dummy_classes.cpp'
+                              }
+    .Sources4Unity          = {}
     ForEach( .Src in .Sources )
     {
         If( .Src not in .DoNotBuildInUnity )
@@ -70,43 +70,43 @@
     {
         Using( .Config )
         //.OutputBase + '\$Platform$-$Config$'
-		.OutputBase = '$Config$'
-		
-		.CompilerOptions			+ ' $CxxFlags$'
-									+ ' $Defines$'
-									+ ' $IncPath$'
-									+ ' -I$OutputBase$'
-									
-		.PCHOptions					+ ' $CxxFlags$'
-									+ ' $Defines$'
-									+ ' $IncPath$'
-									+ ' -I$OutputBase$'
-		
-		.DebugString				= 'Debug'
-		.ProfileString				= 'Profile'
-		.ReleaseString				= 'Release'
-		If( .Config == .DebugString )
-		{
-			^CompilerOptions		+ ' $CompilerOptionsDebug$'
-			^PCHOptions				+ ' $CompilerOptionsDebug$'
-			^LinkerOptions			+ ' $LinkerOptionsDebug$ $LibsDebug$'
-		}
-		If( .Config == .ProfileString )
-		{
-			^CompilerOptions		+ ' $CompilerOptionsProfile$'
-			^PCHOptions				+ ' $CompilerOptionsProfile$'
-			^LinkerOptions			+ ' $LinkerOptionsProfile$ $LibsProfile$'
-		}
-		If( .Config == .ReleaseString )
-		{
-			^CompilerOptions		+ ' $CompilerOptionsRelease$'
-			^PCHOptions				+ ' $CompilerOptionsRelease$'
-			^LinkerOptions			+ ' $LinkerOptionsRelease$ $LibsRelease$'
-		}
-		
-		.LinkerOptions				+ ' $Libs$'
-		
-		// Ui files
+        .OutputBase = '$Config$'
+        
+        .CompilerOptions            + ' $CxxFlags$'
+                                    + ' $Defines$'
+                                    + ' $IncPath$'
+                                    + ' -I$OutputBase$'
+                                    
+        .PCHOptions                 + ' $CxxFlags$'
+                                    + ' $Defines$'
+                                    + ' $IncPath$'
+                                    + ' -I$OutputBase$'
+        
+        .DebugString                = 'Debug'
+        .ProfileString              = 'Profile'
+        .ReleaseString              = 'Release'
+        If( .Config == .DebugString )
+        {
+            ^CompilerOptions        + ' $CompilerOptionsDebug$'
+            ^PCHOptions             + ' $CompilerOptionsDebug$'
+            ^LinkerOptions          + ' $LinkerOptionsDebug$ $LibsDebug$'
+        }
+        If( .Config == .ProfileString )
+        {
+            ^CompilerOptions        + ' $CompilerOptionsProfile$'
+            ^PCHOptions             + ' $CompilerOptionsProfile$'
+            ^LinkerOptions          + ' $LinkerOptionsProfile$ $LibsProfile$'
+        }
+        If( .Config == .ReleaseString )
+        {
+            ^CompilerOptions        + ' $CompilerOptionsRelease$'
+            ^PCHOptions             + ' $CompilerOptionsRelease$'
+            ^LinkerOptions          + ' $LinkerOptionsRelease$ $LibsRelease$'
+        }
+        
+        .LinkerOptions              + ' $Libs$'
+        
+        // Ui files
         //----------------------------------------------------------------------
         ObjectList( 'Ui-Files-$Platform$-$Config$' )
         {
@@ -119,8 +119,8 @@
             .CompilerOutputPrefix           = 'ui_'
             .CompilerOutputExtension        = '.h'
         }
-		
-		// Mocables
+        
+        // Mocables
         //----------------------------------------------------------------------
         // 1/4 generate moc_predefs.h
         Exec( 'Qt-Moc-Predefs-$Platform$-$Config$' )
@@ -176,10 +176,10 @@
         {
             .CompilerOutputPath             = '$OutputBase$'
             .CompilerInputUnity             = 'Moc-Unity-$Platform$-$Config$'
-			.CompilerOptions				+ ' -FIpch4moc.h -Yupch4moc.h -Fp$OutputBase$\\MyProject_pch4moc.pch'
-			
-			.PCHInputFile				= 'src/pch4moc.h'
-			.PCHOutputFile				= '$OutputBase$/MyProject_pch4moc.pch'
+            .CompilerOptions                + ' -FIpch4moc.h -Yupch4moc.h -Fp$OutputBase$\\MyProject_pch4moc.pch'
+            
+            .PCHInputFile                   = 'src/pch4moc.h'
+            .PCHOutputFile                  = '$OutputBase$/MyProject_pch4moc.pch'
         }
 
         // Resource files
@@ -235,19 +235,19 @@
                                         + ' -fo "%2" "%1"'
             .CompilerOutputExtension    = '.res'
         }
-		
-		// ObjectList
+        
+        // ObjectList
         //----------------------------------------------------------------------
         ;ObjectList( 'Objects-$Platform$-$Config$' )
         ;{
         ;    .CompilerOutputPath     = '$OutputBase$'
-		;
+        ;
         ;    .CompilerInputFiles     = .Sources
-		;	.CompilerOptions	    + ' -FIpch.h -Yupch.h -Fp$OutputBase$\\MyProject_pch.pch'
-		;	
-		;	.PCHInputFile				= 'src/pch.h'
-		;	.PCHOutputFile				= '$OutputBase$/MyProject_pch.pch'
-		;
+        ;   .CompilerOptions         + ' -FIpch.h -Yupch.h -Fp$OutputBase$\\MyProject_pch.pch'
+        ;   
+        ;   .PCHInputFile            = 'src/pch.h'
+        ;   .PCHOutputFile           = '$OutputBase$/MyProject_pch.pch'
+        ;
         ;    .PreBuildDependencies   = 'Ui-Files-$Platform$-$Config$'
         ;}
         
@@ -262,12 +262,12 @@
         {
             .CompilerOutputPath             = '$OutputBase$'
             .CompilerInputUnity             = 'Unity-$Platform$-$Config$'
-			.CompilerOptions				+ ' -FIpch.h -Yupch.h -Fp$OutputBase$\\MyProject_pch.pch'
-			
-			.PCHInputFile				= 'src/pch.h'
-			.PCHOutputFile				= '$OutputBase$/MyProject_pch.pch'
-			
-			.PreBuildDependencies   = 'Ui-Files-$Platform$-$Config$'
+            .CompilerOptions                + ' -FIpch.h -Yupch.h -Fp$OutputBase$\\MyProject_pch.pch'
+            
+            .PCHInputFile                   = 'src/pch.h'
+            .PCHOutputFile                  = '$OutputBase$/MyProject_pch.pch'
+            
+            .PreBuildDependencies   = 'Ui-Files-$Platform$-$Config$'
         }
         
         ObjectList( 'NonUnity-Objects-$Platform$-$Config$' )
@@ -275,10 +275,10 @@
             .CompilerOutputPath     = '$OutputBase$'
             
             .CompilerInputFiles     = .DoNotBuildInUnity
-            .CompilerOptions	    + ' -FIpch.h -Yupch.h -Fp$OutputBase$\\MyProject_pch_extra.pch'
+            .CompilerOptions        + ' -FIpch.h -Yupch.h -Fp$OutputBase$\\MyProject_pch_extra.pch'
             
-            .PCHInputFile				= 'src/pch4moc.h'
-            .PCHOutputFile				= '$OutputBase$/MyProject_pch_extra.pch'
+            .PCHInputFile           = 'src/pch4moc.h'
+            .PCHOutputFile          = '$OutputBase$/MyProject_pch_extra.pch'
         }
 
         // Executable
@@ -316,33 +316,33 @@
     {
         .Targets = { '$ProjectName$-Debug', '$ProjectName$-Profile', '$ProjectName$-Release' }
     }
-	
-	// Assemble include paths into string for IntellisenseOptions
-	.IncludeSearchPath = ''
-	ForEach( .Inc in .Includes )
-	{
-		^IncludeSearchPath + ' $Inc$;'
-	}
-	ForEach( .Inc in .QtIncPaths )
-	{
-		^IncludeSearchPath + ' $Inc$;'
-	}
-	.IncludeSearchPath + ' ^$(Configuration);'
-	
-	.SourceFileType             = [
+    
+    // Assemble include paths into string for IntellisenseOptions
+    .IncludeSearchPath = ''
+    ForEach( .Inc in .Includes )
+    {
+        ^IncludeSearchPath + ' $Inc$;'
+    }
+    ForEach( .Inc in .QtIncPaths )
+    {
+        IncludeSearchPath + ' $Inc$;'
+    }
+    .IncludeSearchPath + ' ^$(Configuration);'
+    
+    .SourceFileType             = [
                                     .FileType     = 'Source Files'
                                     .Pattern      = '*.cpp'
                                   ]
-	.HeaderFileType             = [
-									.FileType     = 'Header Files'
-									.Pattern      = '*.h'
-								  ]
+    .HeaderFileType             = [
+                                    .FileType     = 'Header Files'
+                                    .Pattern      = '*.h'
+                                  ]
 
-	.ProjectFileTypes           = {
-									.SourceFileType,
-									.HeaderFileType
-								  }
-	
+    .ProjectFileTypes           = {
+                                    .SourceFileType,
+                                    .HeaderFileType
+                                  }
+    
     // Visual Studio Project Generation
     //--------------------------------------------------------------------------
     #if __WINDOWS__
@@ -354,20 +354,18 @@
             .ProjectBasePath            = '$ProjectPath$\'
 
             
-										  
-			// IntellisenseOptions
-			.PreprocessorDefines	= .Defines
-			;.IncludeSearchPath		= .Includes 
-			;						+ .QtIncPaths
-									
-			// Compilation Input/Output
-			.OutputDirectory		= .OutputBase
-			.IntermediateDirectory	= .OutputBase
+                                        
+            // IntellisenseOptions
+            .PreprocessorDefines        = .Defines
+                                        
+            // Compilation Input/Output
+            .OutputDirectory            = .OutputBase
+            .IntermediateDirectory      = .OutputBase
 
-            .ProjectX64Debug        = [ Using( .ProjectX64Debug )           .Target = '$ProjectName$-X64-Debug' ]
-            .ProjectX64Profile      = [ Using( .ProjectX64Profile )         .Target = '$ProjectName$-X64-Profile' ]
-            .ProjectX64Release      = [ Using( .ProjectX64Release )         .Target = '$ProjectName$-X64-Release' ]
-            .ProjectConfigs         = { .ProjectX64Debug, .ProjectX64Profile, .ProjectX64Release }
+            .ProjectX64Debug            = [ Using( .ProjectX64Debug )           .Target = '$ProjectName$-X64-Debug' ]
+            .ProjectX64Profile          = [ Using( .ProjectX64Profile )         .Target = '$ProjectName$-X64-Profile' ]
+            .ProjectX64Release          = [ Using( .ProjectX64Release )         .Target = '$ProjectName$-X64-Release' ]
+            .ProjectConfigs             = { .ProjectX64Debug, .ProjectX64Profile, .ProjectX64Release }
         }
     #endif
 }

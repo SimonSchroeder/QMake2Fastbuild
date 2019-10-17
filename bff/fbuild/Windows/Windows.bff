@@ -16,21 +16,12 @@
     #include "Windows81SDK.bff"
     .WindowsSDK_X64             = .Windows81_SDK_X64
     Alias( 'ResourceCompiler' ) { .Targets = 'ResourceCompiler-Windows81' }
-	.WINSDK_PATH				= .WIN81_SDK_PATH
+    .WINSDK_PATH                = .WIN81_SDK_PATH
 #endif
 #if USING_WINDOWS10_SDK
     #include "Windows10SDK.bff"
     .WindowsSDK_X64             = .Windows10_SDK_X64
     Alias( 'ResourceCompiler' ) { .Targets = 'ResourceCompiler-Windows10' }
 #endif
-
-;.Toolkit_Windows_rc =
-;[
-;    .Compiler                   = 'ResourceCompiler'
-;    .CompilerOptions            = '/NOLOGO '
-;                                + .'Defines'
-;                                + ' -fo "%2" "%1"'
-;    .CompilerOutputExtension    = '.rc'
-;]
 
 //------------------------------------------------------------------------------

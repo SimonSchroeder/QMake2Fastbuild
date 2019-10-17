@@ -12,7 +12,7 @@
     .QT_VERSION                         = .QT5_9_1_VERSION
     .ToolChain_Qt                       = .ToolChain_Qt5_9_1
     .QT_PATH                            = .QT5_9_1_PATH
-	.QtIncPaths							= .Qt5_9_1IncPaths
+    .QtIncPaths                         = .Qt5_9_1IncPaths
     Alias( 'Qt-uic' ) { .Targets = 'Compiler-Qt5.9.1-uic' }
     Alias( 'Qt-moc' ) { .Targets = 'Compiler-Qt5.9.1-moc' }
     Alias( 'Qt-rcc' ) { .Targets = 'Compiler-Qt5.9.1-rcc' }
