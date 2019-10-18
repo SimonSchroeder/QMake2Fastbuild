@@ -10,6 +10,8 @@ Based on a Qt project file (*.pro) easily set-up compilation with FASTBuild (htt
 
 The main structure of the *.bff files is borrowed from FASTBuild itself (https://github.com/fastbuild/fastbuild/blob/master/Code/fbuild.bff). This includes subfolders for Visual Studio and Windows SDKs. This structure is extended to include a subfolder for Qt frameworks.
 
+Everything is set-up to support everything FASTBuild offers: pre-compiled headers, caching, distributed builds and unity files.
+
 ## Compatibility
 The initial supported platforms and compilers is quite limited because it is used by the initiator for this specific set-up. However, based on FASTBuild's *.bff files (https://github.com/fastbuild/fastbuild/blob/master/Code) this can be easily expanded to other operating systems and compilers. A few adaptations need to be made, though.
 ### Target platforms
@@ -130,4 +132,44 @@ You should rename `MyProject.bff` according to your own project name. "MyProject
 * `MyProject.bff`
 * `generateDefines4FBuild.bat`
 * `generateIncludes4FBuild.bat`
-* `generateInputFiles4Fbuild.bat`
+* `generateInputFiles4FBuild.bat`
+
+Running `generateDefines4FBuild.bat`, `generateIncludes4FBuild.bat`, and `generateInputFiles4FBuild.bat` generates additional files `fbuild\defines.bff`, `fbuild\includes.bff`, and `fbuild\files.bff`. These are necessary before running FASTBuild on this project for the first time.
+
+## Configuration
+Right now, the configuration of this project is still comparatively static. Not everything will be extracted from Qt's *.pro file using the `generate*.bat` scripts. Let's have a look at what is being compiled. Towards the bottom of `MyProject.bff` you'll find the following:
+```fastbuild
+    Alias( 'Debug' )           { .Targets = { '$ProjectName$-X64-Debug' } }
+    Alias( 'Profile' )         { .Targets = { '$ProjectName$-X64-Profile' } }
+    Alias( 'Release' )         { .Targets = { '$ProjectName$-X64-Release' } }
+```
+This corresponds to Qt's set-up of `Debug`, `Profile`, and `Release` builds. These will be the targets that are easily includes in Visuals Studio projects or even Qt Creator. (Also, they are quite easy to type on the command line.) You should note that these are only 64bit targets. Usually, Qt Creator is not configured to provide 32bit builds of the same project. Have a look on FASTBuilds *.bff files for ideas how to support 32bit and 64bit at the same time.
+
+These aliases basically forward to the `Executable` target in `MyProject.bff`. It is defined as follows:
+```fastbuild
+        Executable( '$ProjectName$-$Platform$-$Config$' )
+        {
+            .Libraries          =  { 'Objects-$Platform$-$Config$',
+                                     'NonUnity-Objects-$Platform$-$Config$',
+                                     'Moc-Objects-$Platform$-$Config$',
+                                     'Qrc-Objects-$Platform$-$Config$',
+                                     'Windows-Resources-$Platform$-$Config$'
+                                   }
+
+            .LinkerOutput       = '$OutputBase$\$ProjectName$.exe'
+        }
+```
+These targets compile `*.cpp` files as unity files, a few `*.cpp` files not as unity, run `moc` and compile `moc_*.cpp` files, compile `*.qrc` files, and compile Windows resource files, respectively. The last one needs further explanation: If your *.pro file contains the line
+```qmake
+RC_ICONS = some_icon.ico
+```
+running `qmake` produces a `MyProject_resource.rc`. For now, you need to copy this file to `fbuild\MyProject_resource.rc` (or change the corresponding line in `MyProject.bff`). If you don't have a Windows resource file remove the target from the `Executable`'s `.Libraries`.
+
+Most configuration takes place at the top of `MyProject.bff`. I have not found an equivalent to Qt's `config.pri` (i.e. an optionally included file) in FASTBuild. So, for now you can just add more preprocessor definitions to `.Defines`. Also, set-ups depending on debug/release builds in Qt project files are not extracted. Therefore, __all__ libraries need to be specified by hand. You will find examples for `.Libs`, `.LibsDebug`, `.LibsProfile`, and `.LibsRelease` in `MyProject.bff`. Adapt these to your own project.
+
+Finally, there is a list of files that should not be build as unity called `.DoNotBuildInUnity`. This is necessary when there are some name collisions between different files (e.g. an independent component which includes a Windows header containing classes with the same name as your own). It could also be helpful to exclude a few `*.cpp` files you are currently working on, such that the other unity files are not always rebuild. For the target `Unity( 'Unity-$Platform$-$Config$' )` you should change the number of `.UnityNumFiles` according to the size of your project. Here's the reasoning to use unity builds: when doing distributed compilation there is virtually no speed-up compiling `*.cpp` files individually. It is therefore necessary to have larger build units, hence unity files. We chose a high number of unity files in order to keep recompiles to a minimum during development.
+
+### Pre-compiled headers
+If you do not have pre-compiled headers, you need to turn these off in several places within `MyProject.bff`. Look for `.PCHInputFile` and `.PCHOutputFile` together with the corresponding `.CompilerOptions` within the same target. Just remove these.
+
+By default, `MyProject.bff` is configured to use two different pre-compiled header input files `src/pch.h` and `src/pch4moc.h`. The latter is also reused for non-unity objects. The reason behind this is that FASTBuild requires different `*.pch` files per target. However, all `*.pch` files will later be linked into the exectable. Somehow certain Boost headers clash during linking. Simple solution is to only have Boost headers included in `src/pch.h` and not in `src/pch4moc.h`. Otherwise the two are identical in our project. If you have different names for your pre-compiled headers you need to change them consistently in `MyProject.h`.
