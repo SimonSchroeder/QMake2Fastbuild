@@ -205,4 +205,19 @@ For the 'Clean Steps' I have replaced the command by a 'Custom Process Step' and
 FBuild.exe Debug  -cache -fastcancel -dist -clean -ide -monitor -progress -summary
 ```
 The set-ups for Profile and Release need to be adapted accordingly. I prefer having `-progress` and `-summary` included, though these are quite unusual for use in an IDE.
-3. __Visual Studio.__ This one is quite easy. The FASTBuild configuration contains targets to generate a Visual Studio solution file or optionally only the project file. In order to generate both the solution and the project file, just run `fbuild solution`. In order to generate only the project file run `fbuild MyProject-proj`. The resulting project is already set-up to use FASTBuild. You can just hit 'Build' or 'Rebuild' from within Visual Studio and it will work. No extra set-up is required. You need to regenerate the Visual Studio project file when source files have been added in FASTBuild (e.g. using `gnerateInputFiles4Fbuild.bat`). Otherwise, the files will not appear in the list.
+1. __Visual Studio.__ This one is quite easy. The FASTBuild configuration contains targets to generate a Visual Studio solution file or optionally only the project file. In order to generate both the solution and the project file, just run `fbuild solution`. In order to generate only the project file run `fbuild MyProject-proj`. The resulting project is already set-up to use FASTBuild. You can just hit 'Build' or 'Rebuild' from within Visual Studio and it will work. No extra set-up is required. You need to regenerate the Visual Studio project file when source files have been added in FASTBuild (e.g. using `gnerateInputFiles4Fbuild.bat`). Otherwise, the files will not appear in the list.
+
+### Using Distributed Builds
+All the commands demonstrated above already have the `-dist` option set. So, there is only little configuration required to actually use distributed builds. First of all, you need to set the environment variable `FASTBUILD_BROKERAGE_PATH` on all computers that should participate in distributed builds as well as on the computer issuing the build. The variable needs to point to a network directory that is discoverable by all participating computers. Now, on the build clients start the software `FBuildWorker.exe`. The next build will now use available workers.
+
+As described before, the number of unity files is fine-tuned for distributed builds: `.UnityNumFiles` needs to be small enough such that the unity files are large enough to have enough work to actually gain a speed-up using distributed builds. On the other hand, I prefer a large number of unity files so that during development the unity files are kept comparatively small for fast compiles when there are only small changes to the source code. Also, if you have many worker threads you need enough work for everyone of them.
+
+## Current Restrictions
+The current set-up is already quite extensive. It includes all file types which could be used by a Qt project. However, not everything is automated, yet. One of the restrictions is that there is a fixed list of Qt modules. The original `*.pro` file used as template contains the following two lines:
+```qmake
+QT       += core gui opengl winextras printsupport
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+```
+`MyProject.bff` sets the `.Defines` accordingly. Furthermore, in `Qt591.bff` the includes paths and libraries are set-up according to these modules. If your list of modules differs from this, you need to adapt these three places (defines, includes, libraries).
+
+Also, initially the project is set-up to work with Visual Studio 2013 and Qt 5.9.1 together with WinSDK 8.1. Further configurations need to be adapted, but should not have any problems.
