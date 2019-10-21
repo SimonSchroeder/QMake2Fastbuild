@@ -173,3 +173,36 @@ Finally, there is a list of files that should not be build as unity called `.DoN
 If you do not have pre-compiled headers, you need to turn these off in several places within `MyProject.bff`. Look for `.PCHInputFile` and `.PCHOutputFile` together with the corresponding `.CompilerOptions` within the same target. Just remove these.
 
 By default, `MyProject.bff` is configured to use two different pre-compiled header input files `src/pch.h` and `src/pch4moc.h`. The latter is also reused for non-unity objects. The reason behind this is that FASTBuild requires different `*.pch` files per target. However, all `*.pch` files will later be linked into the exectable. Somehow certain Boost headers clash during linking. Simple solution is to only have Boost headers included in `src/pch.h` and not in `src/pch4moc.h`. Otherwise the two are identical in our project. If you have different names for your pre-compiled headers you need to change them consistently in `MyProject.h`.
+
+
+## Workflow
+
+Once everything is set-up and configured, we can now start with the regular workflow. As said above you need to configure libraries and their paths by hand. Even Boost non-header libraries most likely need extra linking. Our `*.bff` files still lack 3 additional include files that need to be generated.
+
+### 1. Run
+Before running FASTBuild for the first time you need to run all `generate_*.bat` scripts.
+1. `generateDefines4Fbuild.bat` parses `MyProject.pro` for lines that contain `DEFINES +=`. These will be added as variable `.Defines` to the FASTBuild files. The script generates the file `fbuild/defines.bff`.
+1. `generateIncludes4Fbuild.bat` parses `MyProject.pro` for lines containing `INCLUDEPATH +=`. These will be added as variable `.Includes` to the FASTBuild files. The script generates the file `fbuild/includes.bff`.
+1. `generateInputFiles4Fbuild.bat` is the most extensive script. I looks for `SOURCES`, `HEADERS`, `FORMS`, and `RESOURCES` in `MyProject.pro`. These will be written to `.Sources`, `.Headers`, `.Forms`, and `.Resources`, respectively. Additionally, we need the list of mocable objects, or rather their respective files. Right now, this is done by running `qmake` once on the Qt project file (__note__ the full path for Qt 5.9.1 in this script!) and extracting the information from the generated Makefile. This last step might take a while (compared to the other steps). This is why the scripts are not run automatically from within FASTBuild.
+
+Now, you are ready to run FASTBuild on our set of `*.bff` files (FASTBuild will __always__ look for `fbuild.bff`). Besides all the `*.bff` files you downloaded from this repository, you should also add the generated files `fbuild/defines.bff`, `fbuild/includes.bff`, and `fbuild/files.bff` to your own repository.
+
+### Re-running scripts
+Most of the time you do not have to run any of the scripts. If you have a long existing project, chances are that all your `DEFINES` and `INCLUDEPATH`s are properly set-up. Only if you make changes here do you have to re-run the first two scripts. The premise is that you are using (or at least one person in your team) Qt Creator for development. In this case it makes sense to always use the `*.pro` file as basis for changes. If you add new sources to the project, add them in `MyProject.pro`. After that, re-run `generateInputFiles4Fbuild.bat`. Now, your FASTBuild project is also up-to-date. If you are using Visual Studio as IDE, you need to re-run `fbuild solution` or at least `fbuild MyProject-proj` so that everything is discoverable in VS.
+
+### Running FASTBuild
+There are many options to running FASTBuild. First of all, there is running FASTBuild from the command line (or e.g. a CI (continuous integration) tool). Then, there is running FASTBuild from an IDE like Qt Creator or Visual Studio. We will have a quick look at all three of them.
+1. __Command Line.__ Change to the directory of your project. `fbuild.bff` should be located in this directory. `FBuild.exe` should either also be located in this directory or the `PATH` environment variable needs to be set-up accordingly. Now, you can just run the command `fbuild`. More likely, you want to run a specific target instead of all of the configurations, like `Debug`, `Profile` or `Release`. Here is the command which I prefer:
+```bat
+fbuild Debug -fastcancel -report -summary -dist -cache
+```
+2. __Qt Creator.__ It is possible to configure Qt Creator to use FASTBuild when hitting 'Build' from within the IDE. By default Qt will set-up configuration for Debug, Profile and Release. In the 'Build Steps' Qt Creator will run `qmake` followed by `jom`. The command for 'Clean Steps' is defined as `jom clean`. These commands need to be replaced. Under 'Build steps' we now need a single 'Make' command:
+```
+FBuild.exe Debug -cache -fastcancel -dist -ide -monitor -progress -summary
+```
+For the 'Clean Steps' I have replaced the command by a 'Custom Process Step' and a 'Make' step. The 'Custom Process Step' is running `generateInputFiles4Fbuild.bat`. FASTBuild actually never requires a true rebuild. Including this script here hijacks rebuilding to reparsing the list of source files. This allows to hit 'Rebuild' when files are added to the project. For the 'Make' step you should set-up the following command
+```
+FBuild.exe Debug  -cache -fastcancel -dist -clean -ide -monitor -progress -summary
+```
+The set-ups for Profile and Release need to be adapted accordingly. I prefer having `-progress` and `-summary` included, though these are quite unusual for use in an IDE.
+3. __Visual Studio.__ This one is quite easy. The FASTBuild configuration contains targets to generate a Visual Studio solution file or optionally only the project file. In order to generate both the solution and the project file, just run `fbuild solution`. In order to generate only the project file run `fbuild MyProject-proj`. The resulting project is already set-up to use FASTBuild. You can just hit 'Build' or 'Rebuild' from within Visual Studio and it will work. No extra set-up is required. You need to regenerate the Visual Studio project file when source files have been added in FASTBuild (e.g. using `gnerateInputFiles4Fbuild.bat`). Otherwise, the files will not appear in the list.
