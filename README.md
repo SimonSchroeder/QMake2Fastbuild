@@ -1,7 +1,5 @@
 # QMake2Fastbuild
 
-*The documentation is still work-in-progress.*
-
 ## Aim
 Compile Qt Projects with FASTBuild
 
@@ -192,19 +190,8 @@ Most of the time you do not have to run any of the scripts. If you have a long e
 
 ### Running FASTBuild
 There are many options to running FASTBuild. First of all, there is running FASTBuild from the command line (or e.g. a CI (continuous integration) tool). Then, there is running FASTBuild from an IDE like Qt Creator or Visual Studio. We will have a quick look at all three of them.
-1. __Command Line.__ Change to the directory of your project. `fbuild.bff` should be located in this directory. `FBuild.exe` should either also be located in this directory or the `PATH` environment variable needs to be set-up accordingly. Now, you can just run the command `fbuild`. More likely, you want to run a specific target instead of all of the configurations, like `Debug`, `Profile` or `Release`. Here is the command which I prefer:
-```bat
-fbuild Debug -fastcancel -report -summary -dist -cache
-```
-2. __Qt Creator.__ It is possible to configure Qt Creator to use FASTBuild when hitting 'Build' from within the IDE. By default Qt will set-up configuration for Debug, Profile and Release. In the 'Build Steps' Qt Creator will run `qmake` followed by `jom`. The command for 'Clean Steps' is defined as `jom clean`. These commands need to be replaced. Under 'Build steps' we now need a single 'Make' command:
-```
-FBuild.exe Debug -cache -fastcancel -dist -ide -monitor -progress -summary
-```
-For the 'Clean Steps' I have replaced the command by a 'Custom Process Step' and a 'Make' step. The 'Custom Process Step' is running `generateInputFiles4Fbuild.bat`. FASTBuild actually never requires a true rebuild. Including this script here hijacks rebuilding to reparsing the list of source files. This allows to hit 'Rebuild' when files are added to the project. For the 'Make' step you should set-up the following command
-```
-FBuild.exe Debug  -cache -fastcancel -dist -clean -ide -monitor -progress -summary
-```
-The set-ups for Profile and Release need to be adapted accordingly. I prefer having `-progress` and `-summary` included, though these are quite unusual for use in an IDE.
+1. __Command Line.__ Change to the directory of your project. `fbuild.bff` should be located in this directory. `FBuild.exe` should either also be located in this directory or the `PATH` environment variable needs to be set-up accordingly. Now, you can just run the command `fbuild`. More likely, you want to run a specific target instead of all of the configurations, like `Debug`, `Profile` or `Release`. Here is the command which I prefer: `fbuild Debug -fastcancel -report -summary -dist -cache`
+2. __Qt Creator.__ It is possible to configure Qt Creator to use FASTBuild when hitting 'Build' from within the IDE. By default Qt will set-up configuration for Debug, Profile and Release. In the 'Build Steps' Qt Creator will run `qmake` followed by `jom`. The command for 'Clean Steps' is defined as `jom clean`. These commands need to be replaced. Under 'Build steps' we now need a single 'Make' command: `FBuild.exe Debug -cache -fastcancel -dist -ide -monitor -progress -summary` For the 'Clean Steps' I have replaced the command by a 'Custom Process Step' and a 'Make' step. The 'Custom Process Step' is running `generateInputFiles4Fbuild.bat`. FASTBuild actually never requires a true rebuild. Including this script here hijacks rebuilding to reparsing the list of source files. This allows to hit 'Rebuild' when files are added to the project. For the 'Make' step you should set-up the following command `FBuild.exe Debug  -cache -fastcancel -dist -clean -ide -monitor -progress -summary` The set-ups for Profile and Release need to be adapted accordingly. I prefer having `-progress` and `-summary` included, though these are quite unusual for use in an IDE.
 1. __Visual Studio.__ This one is quite easy. The FASTBuild configuration contains targets to generate a Visual Studio solution file or optionally only the project file. In order to generate both the solution and the project file, just run `fbuild solution`. In order to generate only the project file run `fbuild MyProject-proj`. The resulting project is already set-up to use FASTBuild. You can just hit 'Build' or 'Rebuild' from within Visual Studio and it will work. No extra set-up is required. You need to regenerate the Visual Studio project file when source files have been added in FASTBuild (e.g. using `gnerateInputFiles4Fbuild.bat`). Otherwise, the files will not appear in the list.
 
 ### Using Distributed Builds
