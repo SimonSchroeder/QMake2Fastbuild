@@ -177,7 +177,7 @@ By default, `MyProject.bff` is configured to use two different pre-compiled head
 
 Once everything is set-up and configured, we can now start with the regular workflow. As said above you need to configure libraries and their paths by hand. Even Boost non-header libraries most likely need extra linking. Our `*.bff` files still lack 3 additional include files that need to be generated.
 
-### 1. Run
+### First Run
 Before running FASTBuild for the first time you need to run all `generate_*.bat` scripts.
 1. `generateDefines4Fbuild.bat` parses `MyProject.pro` for lines that contain `DEFINES +=`. These will be added as variable `.Defines` to the FASTBuild files. The script generates the file `fbuild/defines.bff`.
 1. `generateIncludes4Fbuild.bat` parses `MyProject.pro` for lines containing `INCLUDEPATH +=`. These will be added as variable `.Includes` to the FASTBuild files. The script generates the file `fbuild/includes.bff`.
@@ -208,3 +208,5 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 `MyProject.bff` sets the `.Defines` accordingly. Furthermore, in `Qt591.bff` the includes paths and libraries are set-up according to these modules. If your list of modules differs from this, you need to adapt these three places (defines, includes, libraries).
 
 Also, initially the project is set-up to work with Visual Studio 2013 and Qt 5.9.1 together with WinSDK 8.1. Further configurations need to be adapted, but should not have any problems.
+
+One major drawback right now is the `.Environment` at the top of `fbuild.bff`. This was a quick fix for linking. Suggestions for improvement are welcome.
