@@ -4,6 +4,19 @@
     .ProjectName        = 'MyProject'
     .ProjectPath        = '.'
 
+    #define HAS_MOCABLES
+    #define HAS_QRC_FILES
+    #define HAS_RC_ICONS
+
+    #if USING_PCH
+        .ObjPCHHeaderFile       = 'src/pch.h'
+        .MocPCHHeaderFile       = 'src/pch4moc.h'
+        .NonUnityPCHHeaderFile  = .MocPCHHeaderFile
+    #endif
+    #if USING_UNITY
+        .NumObjUnityFiles       = 40
+    #endif
+    .NumMocUnityFiles           = 20    // moc'ing only works with unity files
 
     // DEFINES from MyProject.pro (variable .Defines)
     //--------------------------------------------------------------------------
@@ -169,17 +182,19 @@
             .UnityInputObjectLists          = { 'Mocables-$Platform$-$Config$' }
             .UnityOutputPath                = '$OutputBase$'
             .UnityOutputPattern             = 'MocUnity*.cpp'
-            .UnityNumFiles                  = 20
+            .UnityNumFiles                  = .NumMocUnityFiles
         }
         // 4/4 Compile moc_*.cpp (as Unity)
         ObjectList( 'Moc-Objects-$Platform$-$Config$' )
         {
             .CompilerOutputPath             = '$OutputBase$'
             .CompilerInputUnity             = 'Moc-Unity-$Platform$-$Config$'
-            .CompilerOptions                + ' -FIpch4moc.h -Yupch4moc.h -Fp$OutputBase$\\MyProject_pch4moc.pch'
             
-            .PCHInputFile                   = 'src/pch4moc.h'
-            .PCHOutputFile                  = '$OutputBase$/MyProject_pch4moc.pch'
+            #if USING_PCH
+                .PCHInputFile                   = .MocPCHHeaderFile
+                .PCHOutputFile                  = '$OutputBase$/$ProjectName$_pch4moc.pch'
+                .CompilerOptions                + ' -FIpch4moc.h -Yupch4moc.h -Fp$OutputBase$\\$ProjectName$_pch4moc.pch'
+            #endif
         }
 
         // Resource files
@@ -226,7 +241,7 @@
         {
             .CompilerOutputPath         = '$OutputBase$'
 
-            .CompilerInputFiles         = 'fbuild/MyProject_resource.rc'
+            .CompilerInputFiles         = 'fbuild/$ProjectName$_resource.rc'
 
             .Compiler                   = 'ResourceCompiler'
             .CompilerOptions            = ' /NOLOGO'
@@ -238,59 +253,74 @@
         
         // ObjectList
         //----------------------------------------------------------------------
-        ;ObjectList( 'Objects-$Platform$-$Config$' )
-        ;{
-        ;    .CompilerOutputPath     = '$OutputBase$'
-        ;
-        ;    .CompilerInputFiles     = .Sources
-        ;   .CompilerOptions         + ' -FIpch.h -Yupch.h -Fp$OutputBase$\\MyProject_pch.pch'
-        ;   
-        ;   .PCHInputFile            = 'src/pch.h'
-        ;   .PCHOutputFile           = '$OutputBase$/MyProject_pch.pch'
-        ;
-        ;    .PreBuildDependencies   = 'Ui-Files-$Platform$-$Config$'
-        ;}
-        
-        Unity( 'Unity-$Platform$-$Config$' )
-        {
-            .UnityInputFiles                = .Sources4Unity
-            .UnityOutputPath                = '$OutputBase$'
-            .UnityOutputPattern             = 'Unity*.cpp'
-            .UnityNumFiles                  = 40
-        }
-        ObjectList( 'Objects-$Platform$-$Config$' )
-        {
-            .CompilerOutputPath             = '$OutputBase$'
-            .CompilerInputUnity             = 'Unity-$Platform$-$Config$'
-            .CompilerOptions                + ' -FIpch.h -Yupch.h -Fp$OutputBase$\\MyProject_pch.pch'
+        #if !USING_UNITY
+            ObjectList( 'Objects-$Platform$-$Config$' )
+            {
+                .CompilerOutputPath     = '$OutputBase$'
             
-            .PCHInputFile                   = 'src/pch.h'
-            .PCHOutputFile                  = '$OutputBase$/MyProject_pch.pch'
+                .CompilerInputFiles     = .Sources
+                
+                #if USING_PCH
+                    .PCHInputFile           = 'src/pch.h'
+                    .PCHOutputFile          = '$OutputBase$/$ProjectName$_pch.pch'
+                    .CompilerOptions        + ' -FIpch.h -Yupch.h -Fp$OutputBase$\\$ProjectName$_pch.pch'
+                #endif
+                
+                .PreBuildDependencies   = 'Ui-Files-$Platform$-$Config$'
+            }
+        #else   // USING_UNITY
+            Unity( 'Unity-$Platform$-$Config$' )
+            {
+                .UnityInputFiles                = .Sources4Unity
+                .UnityOutputPath                = '$OutputBase$'
+                .UnityOutputPattern             = 'Unity*.cpp'
+                .UnityNumFiles                  = .NumObjUnityFiles
+            }
+            ObjectList( 'Objects-$Platform$-$Config$' )
+            {
+                .CompilerOutputPath             = '$OutputBase$'
+                .CompilerInputUnity             = 'Unity-$Platform$-$Config$'
+                
+                #if USING_PCH
+                    .PCHInputFile                   = .ObjPCHHeaderFile
+                    .PCHOutputFile                  = '$OutputBase$/$ProjectName$_pch.pch'
+                    .CompilerOptions                + ' -FIpch.h -Yupch.h -Fp$OutputBase$\\$ProjectName$_pch.pch'
+                #endif
+                
+                .PreBuildDependencies           = 'Ui-Files-$Platform$-$Config$'
+            }
             
-            .PreBuildDependencies   = 'Ui-Files-$Platform$-$Config$'
-        }
-        
-        ObjectList( 'NonUnity-Objects-$Platform$-$Config$' )
-        {
-            .CompilerOutputPath     = '$OutputBase$'
-            
-            .CompilerInputFiles     = .DoNotBuildInUnity
-            .CompilerOptions        + ' -FIpch.h -Yupch.h -Fp$OutputBase$\\MyProject_pch_extra.pch'
-            
-            .PCHInputFile           = 'src/pch4moc.h'
-            .PCHOutputFile          = '$OutputBase$/MyProject_pch_extra.pch'
-        }
+            ObjectList( 'NonUnity-Objects-$Platform$-$Config$' )
+            {
+                .CompilerOutputPath             = '$OutputBase$'
+                
+                .CompilerInputFiles             = .DoNotBuildInUnity
+                
+                #if USING_PCH
+                    .PCHInputFile                   = .NonUnityPCHHeaderFile
+                    .PCHOutputFile                  = '$OutputBase$/$ProjectName$_pch_extra.pch'
+                    .CompilerOptions                + ' -FIpch.h -Yupch.h -Fp$OutputBase$\\$ProjectName$_pch_extra.pch'
+                #endif
+            }
+        #endif
 
         // Executable
         //----------------------------------------------------------------------
         Executable( '$ProjectName$-$Platform$-$Config$' )
         {
-            .Libraries          =  { 'Objects-$Platform$-$Config$',
-                                     'NonUnity-Objects-$Platform$-$Config$',
-                                     'Moc-Objects-$Platform$-$Config$',
-                                     'Qrc-Objects-$Platform$-$Config$',
-                                     'Windows-Resources-$Platform$-$Config$'
-                                   }
+            .Libraries          =  {  'Objects-$Platform$-$Config$' }
+            #if USING_UNITY
+                .Libraries      +  { 'NonUnity-Objects-$Platform$-$Config$' }
+            #endif
+            #if HAS_MOCABLES
+                .Libraries      +  { 'Moc-Objects-$Platform$-$Config$' }
+            #endif
+            #if HAS_QRC_FILES
+                .Libraries      +  { 'Qrc-Objects-$Platform$-$Config$' }
+            #endif
+            #if HAS_RC_ICONS
+                .Libraries      +  { 'Windows-Resources-$Platform$-$Config$' }
+            #endif
 
             .LinkerOutput       = '$OutputBase$\$ProjectName$.exe'
         }

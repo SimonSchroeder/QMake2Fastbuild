@@ -38,7 +38,7 @@ There are two things you need before getting started with the files provided in 
 ### Downloading FASTBuild
 1. Download the most recent version of FASTBuild: http://www.fastbuild.org/docs/download.html
 1. Extract the executables to a place where they can be found by Windows.
-   * Either the the `PATH` environment variable accordingly,
+   * Either set the `PATH` environment variable accordingly,
    * Or put the executables into your own projects directory and add them to your projects repository. This is suggested by FASTBuild. The executables do not have any dependencies to any DLLs and can thus be copied to any computer without requiring any set-up.
    
 Putting the executables into your project's repository is the preferred method.
@@ -135,24 +135,33 @@ You should rename `MyProject.bff` according to your own project name. "MyProject
 Running `generateDefines4FBuild.bat`, `generateIncludes4FBuild.bat`, and `generateInputFiles4FBuild.bat` generates additional files `fbuild\defines.bff`, `fbuild\includes.bff`, and `fbuild\files.bff`. These are necessary before running FASTBuild on this project for the first time.
 
 ## Configuration
-Right now, the configuration of this project is still comparatively static. Not everything will be extracted from Qt's *.pro file using the `generate*.bat` scripts. Let's have a look at what is being compiled. Towards the bottom of `MyProject.bff` you'll find the following:
+Right now, the configuration of this project is still comparatively static. Not everything will be extracted from Qt's *.pro file using the `generate*.bat` scripts. At the top of `fbuild.bff` you will find defines to choose your compiler and Qt version. Below that you can specify if you want to turn on pre-compiled headers (if you have them) and compile as unity files. Right at the beginning of `MyProject.bbf` there are similar options. Here you can easily turn on and off if your project contains any mocable headers, qrc files or has an RC_ICON set up. Furthermore, you can define the names of your pre-compiled headers and the number of unity files.
+
+Let's have a look at what is being compiled. Towards the bottom of `MyProject.bff` you'll find the following:
 ```fastbuild
     Alias( 'Debug' )           { .Targets = { '$ProjectName$-X64-Debug' } }
     Alias( 'Profile' )         { .Targets = { '$ProjectName$-X64-Profile' } }
     Alias( 'Release' )         { .Targets = { '$ProjectName$-X64-Release' } }
 ```
-This corresponds to Qt's set-up of `Debug`, `Profile`, and `Release` builds. These will be the targets that are easily includes in Visuals Studio projects or even Qt Creator. (Also, they are quite easy to type on the command line.) You should note that these are only 64bit targets. Usually, Qt Creator is not configured to provide 32bit builds of the same project. Have a look on FASTBuilds *.bff files for ideas how to support 32bit and 64bit at the same time.
+This corresponds to Qt's set-up of `Debug`, `Profile`, and `Release` builds. These will be the targets that are easily included in Visuals Studio projects or even Qt Creator. (Also, they are quite easy to type on the command line.) You should note that these are only 64bit targets. Usually, Qt Creator is not configured to provide 32bit builds of the same project. Have a look on FASTBuilds *.bff files for ideas how to support 32bit and 64bit at the same time.
 
 These aliases basically forward to the `Executable` target in `MyProject.bff`. It is defined as follows:
 ```fastbuild
         Executable( '$ProjectName$-$Platform$-$Config$' )
         {
-            .Libraries          =  { 'Objects-$Platform$-$Config$',
-                                     'NonUnity-Objects-$Platform$-$Config$',
-                                     'Moc-Objects-$Platform$-$Config$',
-                                     'Qrc-Objects-$Platform$-$Config$',
-                                     'Windows-Resources-$Platform$-$Config$'
-                                   }
+            .Libraries          =  {  'Objects-$Platform$-$Config$' }
+            #if USING_UNITY
+                .Libraries      +  { 'NonUnity-Objects-$Platform$-$Config$' }
+            #endif
+            #if HAS_MOCABLES
+                .Libraries      +  { 'Moc-Objects-$Platform$-$Config$' }
+            #endif
+            #if HAS_QRC_FILES
+                .Libraries      +  { 'Qrc-Objects-$Platform$-$Config$' }
+            #endif
+            #if HAS_RC_ICONS
+                .Libraries      +  { 'Windows-Resources-$Platform$-$Config$' }
+            #endif
 
             .LinkerOutput       = '$OutputBase$\$ProjectName$.exe'
         }
@@ -161,7 +170,7 @@ These targets compile `*.cpp` files as unity files, a few `*.cpp` files not as u
 ```qmake
 RC_ICONS = some_icon.ico
 ```
-running `qmake` produces a `MyProject_resource.rc`. For now, you need to copy this file to `fbuild\MyProject_resource.rc` (or change the corresponding line in `MyProject.bff`). If you don't have a Windows resource file remove the target from the `Executable`'s `.Libraries`.
+running `qmake` produces a `MyProject_resource.rc`. For now, you need to copy this file to `fbuild\MyProject_resource.rc` (or change the corresponding line in `MyProject.bff`). If you don't have a Windows resource file remove the target from the `Executable`'s `.Libraries`. You will find the corresponding defines at the top of `MyProject.bff`. Just comment the defines you don't need.
 
 Most configuration takes place at the top of `MyProject.bff`. I have not found an equivalent to Qt's `config.pri` (i.e. an optionally included file) in FASTBuild. So, for now you can just add more preprocessor definitions to `.Defines`. Also, set-ups depending on debug/release builds in Qt project files are not extracted. Therefore, __all__ libraries need to be specified by hand. You will find examples for `.Libs`, `.LibsDebug`, `.LibsProfile`, and `.LibsRelease` in `MyProject.bff`. Adapt these to your own project.
 
