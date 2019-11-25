@@ -1,5 +1,3 @@
-Error( "@Simon: Windows10SDK.bff is unedited and thus untested." )
-
 // Windows 10 SDK
 //------------------------------------------------------------------------------
 
@@ -10,18 +8,17 @@ Error( "@Simon: Windows10SDK.bff is unedited and thus untested." )
 
 // Defines
 //------------------------------------------------------------------------------
-.WindowsSDK_Defines             = ' -DWIN32_LEAN_AND_MEAN'
+.WindowsSDK_Defines             = ' -D_WINDOWS'
                                 + ' -DWIN32'
-                                + ' -D_WIN32'
-                                + ' -D__WINDOWS__'
 
 // Windows 10 SDK
 //------------------------------------------------------------------------------
 .Windows10_SDK_X64 =
 [
-    .WindowsSDK_IncludePaths        = ' "-I$Windows10_SDKBasePath$/Include/$Windows10_SDKVersion$/ucrt"'
-                                    + ' "-I$Windows10_SDKBasePath$/Include/$Windows10_SDKVersion$/um"'
+    .WindowsSDK_IncludePaths        = ' "-I$Windows10_SDKBasePath$/Include/$Windows10_SDKVersion$/um"'
                                     + ' "-I$Windows10_SDKBasePath$/Include/$Windows10_SDKVersion$/shared"'
+                                    + ' "-I$Windows10_SDKBasePath$/Include/$Windows10_SDKVersion$/winrt"'
+                                    + ' "-I$Windows10_SDKBasePath$/Include/$Windows10_SDKVersion$/ucrt"'
 
     .WindowsDK_WinRTAssemblyPath    = '$Windows10_SDKBasePath$/UnionMetadata/$Windows10_SDKVersion$/'
 
@@ -43,5 +40,7 @@ Compiler( 'ResourceCompiler-Windows10' )
     .Executable                 = '$Windows10_SDKBasePath$/Bin/$Windows10_SDKVersion$/x64/RC.exe'
     .CompilerFamily             = 'custom'
 }
+
+.WIN10_SDK_PATH                     = '$Windows10_SDKBasePath$\bin\$Windows10_SDKVersion$\x64'
 
 //------------------------------------------------------------------------------

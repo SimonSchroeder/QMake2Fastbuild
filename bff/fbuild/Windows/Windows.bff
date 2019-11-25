@@ -22,6 +22,7 @@
     #include "Windows10SDK.bff"
     .WindowsSDK_X64             = .Windows10_SDK_X64
     Alias( 'ResourceCompiler' ) { .Targets = 'ResourceCompiler-Windows10' }
+    .WINSDK_PATH                = .WIN10_SDK_PATH
 #endif
 
 //------------------------------------------------------------------------------

@@ -18,4 +18,15 @@
     Alias( 'Qt-rcc' ) { .Targets = 'Compiler-Qt5.9.1-rcc' }
 #endif
 
+#if USING_QT5_13_2
+    #include "Qt5132.bff"
+    .QT_VERSION                         = .QT5_13_2_VERSION
+    .ToolChain_Qt                       = .ToolChain_Qt5_13_2
+    .QT_PATH                            = .QT5_13_2_PATH
+    .QtIncPaths                         = .Qt5_13_2IncPaths
+    Alias( 'Qt-uic' ) { .Targets = 'Compiler-Qt5.13.2-uic' }
+    Alias( 'Qt-moc' ) { .Targets = 'Compiler-Qt5.13.2-moc' }
+    Alias( 'Qt-rcc' ) { .Targets = 'Compiler-Qt5.13.2-rcc' }
+#endif
+
 //------------------------------------------------------------------------------

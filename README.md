@@ -19,18 +19,25 @@ Could be extended to include Linux and Mac OS.
 
 ### Compilers
 * Visual Studio 2013
+* Visual Studio 2019 (has problems with distributed build)
 
 FASTBuild has corresponding files for other versions of Visual Studio in their set-up. These have not been tested and need slight adaptations. Our adaption of VS2013.bff can be used as a guide. FASTBuild also has *.bff files for GCC and clang.
 
 ### Windows SDKs
 * Windows 8.1 SDK
+* Windows 10 SDK
 
 The *.bff files in this repository are set-up to automatically select the Windows 8.1 SDK for Visual Studio 2013. The Windows 10 SDK bff file is already included, but has not been adapted nor been tested.
 
 ### Qt Versions
 * Qt 5.9.1
+* Qt 5.13.2
 
 Incorporating other Qt versions is one of the most easiest extensions to the FASTBuild set-up. Just take Qt591.bff as template.
+
+### Tested combinations
+* Windows, Visual Studio 2013 with Windows 8.1 SDK and Qt 5.9.1
+* Windows, Visual Studio 2019 with Windows 10 SDK and Qt 5.13.2
 
 ## Preliminaries
 There are two things you need before getting started with the files provided in this repository. First of all, you obviously have to download FASTBuild. Second, the scripts to generate the missing *.bff files need `grep` and `sed` installed. I'll quickly explain how to prepare everything.
@@ -177,13 +184,15 @@ Most configuration takes place at the top of `MyProject.bff`. I have not found a
 Finally, there is a list of files that should not be build as unity called `.DoNotBuildInUnity`. This is necessary when there are some name collisions between different files (e.g. an independent component which includes a Windows header containing classes with the same name as your own). It could also be helpful to exclude a few `*.cpp` files you are currently working on, such that the other unity files are not always rebuild. For the target `Unity( 'Unity-$Platform$-$Config$' )` you should change the number of `.UnityNumFiles` according to the size of your project. Here's the reasoning to use unity builds: when doing distributed compilation there is virtually no speed-up compiling `*.cpp` files individually. It is therefore necessary to have larger build units, hence unity files. We chose a high number of unity files in order to keep recompiles to a minimum during development.
 
 ### Pre-compiled headers
-If you do not have pre-compiled headers, you need to turn these off in several places within `MyProject.bff`. Look for `.PCHInputFile` and `.PCHOutputFile` together with the corresponding `.CompilerOptions` within the same target. Just remove these.
+If you do not have pre-compiled headers, you need to turn these off in `fbuild.bff`. Just comment the line
+```fastbuild
+#define USING_PCH
+```
 
-By default, `MyProject.bff` is configured to use two different pre-compiled header input files `src/pch.h` and `src/pch4moc.h`. The latter is also reused for non-unity objects. The reason behind this is that FASTBuild requires different `*.pch` files per target. However, all `*.pch` files will later be linked into the exectable. Somehow certain Boost headers clash during linking. Simple solution is to only have Boost headers included in `src/pch.h` and not in `src/pch4moc.h`. Otherwise the two are identical in our project. If you have different names for your pre-compiled headers you need to change them consistently in `MyProject.h`.
+By default, `MyProject.bff` is configured to use two different pre-compiled header input files `src/pch.h` and `src/pch4moc.h`. The latter is also reused for non-unity objects. The reason behind this is that FASTBuild requires different `*.pch` files per target. However, all `*.pch` files will later be linked into the exectable. Somehow certain Boost headers clash during linking. Simple solution is to only have Boost headers included in `src/pch.h` and not in `src/pch4moc.h`. Otherwise the two are identical in our project. If you have different names for your pre-compiled headers you need to change them at the top of `MyProject.bff`.
 
 
 ## Workflow
-
 Once everything is set-up and configured, we can now start with the regular workflow. As said above you need to configure libraries and their paths by hand. Even Boost non-header libraries most likely need extra linking. Our `*.bff` files still lack 3 additional include files that need to be generated.
 
 ### First Run
@@ -207,6 +216,8 @@ There are many options to running FASTBuild. First of all, there is running FAST
 All the commands demonstrated above already have the `-dist` option set. So, there is only little configuration required to actually use distributed builds. First of all, you need to set the environment variable `FASTBUILD_BROKERAGE_PATH` on all computers that should participate in distributed builds as well as on the computer issuing the build. The variable needs to point to a network directory that is discoverable by all participating computers. Now, on the build clients start the software `FBuildWorker.exe`. The next build will now use available workers.
 
 As described before, the number of unity files is fine-tuned for distributed builds: `.UnityNumFiles` needs to be small enough such that the unity files are large enough to have enough work to actually gain a speed-up using distributed builds. On the other hand, I prefer a large number of unity files so that during development the unity files are kept comparatively small for fast compiles when there are only small changes to the source code. Also, if you have many worker threads you need enough work for everyone of them.
+
+__NOTE:__ With VS2019 there are still problems with finding some of the DLLs in distributed builds. Right now, there is no known solution to this problem. You'll need to stick to VS2013 for now if you need the power of distributed builds.
 
 ## Current Restrictions
 The current set-up is already quite extensive. It includes all file types which could be used by a Qt project. However, not everything is automated, yet. One of the restrictions is that there is a fixed list of Qt modules. The original `*.pro` file used as template contains the following two lines:

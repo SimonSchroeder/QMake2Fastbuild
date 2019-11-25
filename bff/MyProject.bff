@@ -142,7 +142,7 @@
 
             .ExecInput     = '$QT_PATH$\..\mkspecs\features\data\dummy.cpp'
 
-            .ExecExecutable         = '$VS_BASEPATH$\VC\bin\x86_amd64\cl.exe'
+            .ExecExecutable         = .VS_CL_EXE
             .ExecArguments          = ' -Bx$QT_PATH$\qmake.exe'
                                     + ' -nologo'
                                     + ' -Zc:wchar_t'

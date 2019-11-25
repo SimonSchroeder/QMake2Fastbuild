@@ -5,6 +5,8 @@
 //------------------------------------------------------------------------------
 //#define USING_VS2013
 
+.VS_CL_EXE                              = "cl.exe" // overwritten in includes
+
 // Activate
 //------------------------------------------------------------------------------
 #if USING_VS2013
@@ -14,6 +16,15 @@
     .VS_PATH                            = .VS_2013_PATH
     .VS_BASEPATH                        = .VS2013_BasePath
     .VS_PlatformToolset                 = .VS_2013_PlatformToolset
+#endif
+
+#if USING_VS2019
+    #include "VS2019.bff"
+    .MSC_VER                            = .VS2019_MSC_VER
+    .ToolChain_VS_Windows_X64           = .ToolChain_VS2019_Windows_X64
+    .VS_PATH                            = "$VS2019_BasePath$/VC/Tools/MSVC/$VS2019_Version$"
+    .VS_BASEPATH                        = .VS2019_BasePath
+    .VS_PlatformToolset                 = .VS_2019_PlatformToolset
 #endif
 
 //------------------------------------------------------------------------------
