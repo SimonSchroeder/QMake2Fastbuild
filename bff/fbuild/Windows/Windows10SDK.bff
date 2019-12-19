@@ -3,8 +3,8 @@
 
 // Root Paths
 //------------------------------------------------------------------------------
-.Windows10_SDKBasePath          = '$_CURRENT_BFF_DIR_$/10'
-.Windows10_SDKVersion           = '10.0.17763.0'
+.Windows10_SDKBasePath          = 'C:\Program Files (x86)\Windows Kits\10'
+.Windows10_SDKVersion           = '10.0.18362.0'
 
 // Defines
 //------------------------------------------------------------------------------
@@ -20,15 +20,11 @@
                                     + ' "-I$Windows10_SDKBasePath$/Include/$Windows10_SDKVersion$/winrt"'
                                     + ' "-I$Windows10_SDKBasePath$/Include/$Windows10_SDKVersion$/ucrt"'
 
-    .WindowsDK_WinRTAssemblyPath    = '$Windows10_SDKBasePath$/UnionMetadata/$Windows10_SDKVersion$/'
-
     .CommonCompilerOptions          = .WindowsSDK_IncludePaths
                                     + .WindowsSDK_Defines
                                     + ' -DWIN64'
 
     .CompilerOptions                = .CommonCompilerOptions
-    .CompilerOptionsC               = .CommonCompilerOptions
-    .CompilerOptionsDeoptimized     = .CommonCompilerOptions
     .PCHOptions                     = .CommonCompilerOptions
 
     .LinkerOptions                  = ' /LIBPATH:"$Windows10_SDKBasePath$/Lib/$Windows10_SDKVersion$/um/x64"'
@@ -37,10 +33,11 @@
 ]
 Compiler( 'ResourceCompiler-Windows10' )
 {
-    .Executable                 = '$Windows10_SDKBasePath$/Bin/$Windows10_SDKVersion$/x64/RC.exe'
+    .Executable                 = '$Windows10_SDKBasePath$/Bin/$Windows10_SDKVersion$/x64/rc.exe'
     .CompilerFamily             = 'custom'
 }
 
 .WIN10_SDK_PATH                     = '$Windows10_SDKBasePath$\bin\$Windows10_SDKVersion$\x64'
+
 
 //------------------------------------------------------------------------------
