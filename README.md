@@ -19,15 +19,15 @@ Could be extended to include Linux and Mac OS.
 
 ### Compilers
 * Visual Studio 2013
-* Visual Studio 2019 (has problems with distributed build)
+* Visual Studio 2019
 
-FASTBuild has corresponding files for other versions of Visual Studio in their set-up. These have not been tested and need slight adaptations. Our adaption of VS2013.bff can be used as a guide. FASTBuild also has *.bff files for GCC and clang.
+FASTBuild has corresponding files for other versions of Visual Studio in their set-up. These have not been tested and need slight adaptations. Our adaption of VS2013.bff or VS2019.bff can be used as a guide. FASTBuild also has *.bff files for GCC and clang.
 
 ### Windows SDKs
 * Windows 8.1 SDK
 * Windows 10 SDK
 
-The *.bff files in this repository are set-up to automatically select the Windows 8.1 SDK for Visual Studio 2013. The Windows 10 SDK bff file is already included, but has not been adapted nor been tested.
+The *.bff files in this repository are set-up to automatically select the Windows 8.1 SDK for Visual Studio 2013 and the Windows 10 SDK for Visual Studio 2019.
 
 ### Qt Versions
 * Qt 5.9.1
@@ -83,7 +83,7 @@ After installing Scoop this is now quite easy.
 1. You're done.
 
 ## What you need
-We'll shortly explain what you need in order to be able to use the set of tools in this repository. Throughout this explanation and also in the provided files we assume that the project is call `MyProject`. This is something you should replace everywhere.
+We'll shortly explain what you need in order to be able to use the set of tools in this repository. Throughout this explanation and also in the provided files we assume that the project is called `MyProject`. This is something you should replace everywhere.
 
 Initially, we assume the following folder structure:
 ```bash
@@ -110,7 +110,7 @@ From this repository you will basically get a bunch of *.bff files (i.e. configu
 ```bash
 {MyProjectDir}/
 |-- MyProject.pro                   # your original Qt project file
-|-- config.pri                      # (optional)
+|-- config.pri                      # (optional -- not used)
 |-- FBuild.exe                      # (if you copied FASTBuild here)
 |-- FBuildWorker.exe                # (if you copied FASTBuild here)
 |-- fbuild.bff                      # main configuration file for FASTBuild
@@ -119,14 +119,16 @@ From this repository you will basically get a bunch of *.bff files (i.e. configu
 |-- fbuild                          # contains some standard FBuild includes (and the cache)
 |   |-- Qt
 |   |   |-- Qt.bff                  # choose Qt Version in here
-|   |   `-- Qt591.bff               # configuration specific to Qt 5.9.1
+|   |   |-- Qt591.bff               # configuration specific to Qt 5.9.1
+|   |   `-- Qt5132.bff              # configuration specific to Qt 5.13.2
 |   |-- VisualStudio
 |   |   |-- VisualStudio.bff        # choose Visual Studio compiler version here
-|   |   `-- VS2013.bff              # configuration specific to VS 2013
+|   |   |-- VS2013.bff              # configuration specific to VS 2013
+|   |   `-- VS2019.bff              # configuration specific to VS 2019
 |   `-- Windows
 |       |-- Windows.bff             # choose proper Windows SDK in here
 |       |-- Windows81SKD.bff        # configuration specific to Win8.1 SDK
-|       `-- Windows10SDK.bff        # tentative configuration for Win10 SDK
+|       `-- Windows10SDK.bff        # configuration specific to Win10 SDK
 |-- generateDefines4Fbuild.bat      # generate preprocessor defines from MyProject.pro
 |-- generateIncludes4Fbuild.bat     # generate include paths from MyProject.pro
 `-- generateInputFiles4Fbuild.bat   # generate list of all input files from MyProject.pro
@@ -216,8 +218,6 @@ There are many options to running FASTBuild. First of all, there is running FAST
 All the commands demonstrated above already have the `-dist` option set. So, there is only little configuration required to actually use distributed builds. First of all, you need to set the environment variable `FASTBUILD_BROKERAGE_PATH` on all computers that should participate in distributed builds as well as on the computer issuing the build. The variable needs to point to a network directory that is discoverable by all participating computers. Now, on the build clients start the software `FBuildWorker.exe`. The next build will now use available workers.
 
 As described before, the number of unity files is fine-tuned for distributed builds: `.UnityNumFiles` needs to be small enough such that the unity files are large enough to have enough work to actually gain a speed-up using distributed builds. On the other hand, I prefer a large number of unity files so that during development the unity files are kept comparatively small for fast compiles when there are only small changes to the source code. Also, if you have many worker threads you need enough work for everyone of them.
-
-__NOTE:__ With VS2019 there are still problems with finding some of the DLLs in distributed builds. Right now, there is no known solution to this problem. You'll need to stick to VS2013 for now if you need the power of distributed builds.
 
 ## Current Restrictions
 The current set-up is already quite extensive. It includes all file types which could be used by a Qt project. However, not everything is automated, yet. One of the restrictions is that there is a fixed list of Qt modules. The original `*.pro` file used as template contains the following two lines:
