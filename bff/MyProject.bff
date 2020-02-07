@@ -325,6 +325,9 @@
             #endif
 
             .LinkerOutput       = '$OutputBase$\$ProjectName$.exe'
+
+            #import TMP
+            .Environment        = { "PATH=$WINSDK_PATH$", "TMP=$TMP$" }
         }
 
         ^'Targets_$Platform$_$Config$' + { '$ProjectName$-$Platform$-$Config$' }

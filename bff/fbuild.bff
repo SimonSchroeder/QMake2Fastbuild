@@ -22,7 +22,6 @@
 Settings
 {
     #if __WINDOWS__
-        #import TMP
         .CachePath      = "fbuild\.fbuild.cache"
     #else
         .CachePath      = "/tmp/.fbuild.cache"
