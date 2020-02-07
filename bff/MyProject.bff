@@ -239,6 +239,8 @@
         //----------------------------------------------------------------------
         ObjectList( 'Windows-Resources-$Platform$-$Config$' )
         {
+            Using(.WindowsSDK_X64)
+
             .CompilerOutputPath         = '$OutputBase$'
 
             .CompilerInputFiles         = 'fbuild/$ProjectName$_resource.rc'
@@ -246,7 +248,7 @@
             .Compiler                   = 'ResourceCompiler'
             .CompilerOptions            = ' /NOLOGO'
                                         + ' $Defines$'
-                                        + ' $IncPath$'      // eigentlich nur Windows Include Path
+                                        + ' $WindowsSDK_IncludePaths$'
                                         + ' -fo "%2" "%1"'
             .CompilerOutputExtension    = '.res'
         }
