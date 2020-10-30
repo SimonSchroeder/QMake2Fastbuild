@@ -22,10 +22,11 @@
 @mkdir tmp_qmake
 @cd tmp_qmake
 @echo   Creating dummy project...
+@call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\vc\Auxiliary\Build\vcvars64.bat"
 @C:\Qt\5.9.1\msvc2013_64\bin\qmake.exe ..\..\MyProject.pro
 @echo   Find MOCables...
 @echo .Mocables= { >> ..\files.bff
-@grep "moc.exe $(DEFINES)" Makefile.Release | sed "s/^.*\ ..\\..\\\(src\\.*\)\ -o\ .*moc_.*cpp$/\1/" | sed "s/\\/\//g" | sed "s/^/             '/" | sed "s/$/',/" | sed "$,$s/,//" >> ..\files.bff
+@grep "moc.exe $(DEFINES)" Makefile.Release | sed "s/^.*\ \.\.[\\\/]\.\.[\\\/]\(.*\)\ -o\ .*moc_.*cpp$/\1/" | sed "s/\\/\//g" | sed "s/^/             '/" | sed "s/$/',/" | sed "$,$s/,//" >> ..\files.bff
 @echo            } >> ..\files.bff
 @echo   Cleaning up...
 @cd ..
