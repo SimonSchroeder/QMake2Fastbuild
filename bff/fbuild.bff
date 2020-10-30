@@ -1,13 +1,27 @@
 // MyProject
 //------------------------------------------------------------------------------
 
-#define USING_VS2013
-#define USING_QT5_9_1
-//#define USING_VS2019
-//#define USING_QT5_13_2
+//#define USING_VS2013
+//#define USING_QT5_9_1
+#define USING_VS2019
+#define USING_QT5_13_2
 
-#define USING_PCH
+//#define USING_PCH
 #define USING_UNITY
+
+#if exists(FBUILD_MSVC_COMPILER_VER)
+    #import FBUILD_MSVC_COMPILER_VER
+    .MSVC_Compiler_Version = '$FBUILD_MSVC_COMPILER_VER$'
+#else
+    .MSVC_Compiler_Version = '14.24.28314'
+#endif
+
+#if exists(FBUILD_MSVC_LANG)
+    #import FBUILD_MSVC_LANG
+    .MSVC_Language_Code = '$FBUILD_MSVC_LANG$'
+#else
+    .MSVC_Language_Code = '1031'
+#endif
 
 //------------------------------------------------------------------------------
 // Windows Platform

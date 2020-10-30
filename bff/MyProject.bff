@@ -5,8 +5,9 @@
     .ProjectPath        = '.'
 
     #define HAS_MOCABLES
-    #define HAS_QRC_FILES
-    #define HAS_RC_ICONS
+    //#define HAS_QRC_FILES
+    //#define HAS_RC_ICONS
+    //#define HAS_NON_UNITY_FILES
 
     #if USING_PCH
         .ObjPCHHeaderFile       = 'src/pch.h'
@@ -37,14 +38,14 @@
     //--------------------------------------------------------------------------
 #include "fbuild/includes.bff"
                     
-    .LibsDebug          = ' /LIBPATH:..\lib64\debug'
-                        + ' libboost_date_time-vc120-mt-gd-x64-1_67.lib'
-    .LibsProfile        = ' /LIBPATH:..\lib64'
-                        + ' libboost_date_time-vc120-mt-x64-1_67.lib'
-    .LibsRelease        = ' /LIBPATH:..\lib64'
-                        + ' libboost_date_time-vc120-mt-x64-1_67.lib'
-    .Libs               = ' /LIBPATH:..\boost_1_60_0\stage\lib64'
-                        + 'mylib.lib'
+    .LibsDebug          = ''//' /LIBPATH:..\lib64\debug'
+                        //+ ' libboost_date_time-vc120-mt-gd-x64-1_67.lib'
+    .LibsProfile        = ''//' /LIBPATH:..\lib64'
+                        //+ ' libboost_date_time-vc120-mt-x64-1_67.lib'
+    .LibsRelease        = ''//' /LIBPATH:..\lib64'
+                        //+ ' libboost_date_time-vc120-mt-x64-1_67.lib'
+    .Libs               = ''//' /LIBPATH:..\boost_1_60_0\stage\lib64'
+                        //+ 'mylib.lib'
                         
                         
     .CxxFlags           = ' /Zm200'                             // more memory for precompiled headers (from MyProject.pro)
@@ -67,7 +68,7 @@
     
     // Exclude some files from Unity builds...
     .DoNotBuildInUnity      = { 
-                                'dummy_classes.cpp'
+                                //'dummy_classes.cpp'
                               }
     .Sources4Unity          = {}
     ForEach( .Src in .Sources )
@@ -233,7 +234,9 @@
 
             ^ResourceTargets + { '$filename$-qrc-Object-$Platform$-$Config$' }
         }
+        #if HAS_QRC_FILES
         Alias( 'Qrc-Objects-$Platform$-$Config$' ) { .Targets = .ResourceTargets }
+        #endif
 
         // Windows res file (app icon)
         //----------------------------------------------------------------------
@@ -312,7 +315,9 @@
         {
             .Libraries          =  {  'Objects-$Platform$-$Config$' }
             #if USING_UNITY
-                .Libraries      +  { 'NonUnity-Objects-$Platform$-$Config$' }
+                #if HAS_NON_UNITY_FILES
+                    .Libraries  +  { 'NonUnity-Objects-$Platform$-$Config$' }
+                #endif
             #endif
             #if HAS_MOCABLES
                 .Libraries      +  { 'Moc-Objects-$Platform$-$Config$' }
@@ -360,7 +365,7 @@
     }
     ForEach( .Inc in .QtIncPaths )
     {
-        IncludeSearchPath + ' $Inc$;'
+        ^IncludeSearchPath + ' $Inc$;'
     }
     .IncludeSearchPath + ' ^$(Configuration);'
     
